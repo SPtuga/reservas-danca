@@ -2,506 +2,570 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=4.0">
 <title>Reserva</title>
-
 <style>
+
+* { box-sizing: border-box; }
+
 body {
-  font-family: Arial;
-  background: linear-gradient(180deg,#0f172a,#020617);
-  color:white;
-  margin:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  color: white;
+  margin: 0;
+  min-height: 100vh;
 }
 
-.main { display:flex; height:100vh; }
+/* ── LAYOUT PRINCIPAL ── */
+.main {
+  display: flex;
+  flex-direction: row;
+  min-height: 10vh;
+}
 
-.left { flex:3; overflow:auto; text-align:center; }
+/* ── LADO ESQUERDO (mapa) ── */
+.left {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 8px 32px;
+  text-align: center;
+  overflow-x: auto;
+}
 
-h2 { text-align:center; }
+h2 {
+  font-size: clamp(14px, 2vw, 22px);
+  margin: 0 0 12px;
+}
 
 .stage {
-  background:#334155;
-  margin:10px auto;
-  padding:10px;
-  width:60%;
-  border-radius:10px;
-  font-weight:bold;
+  background: #334155;
+  margin: 0 auto 14px;
+  padding: 8px 16px;
+  width: fit-content;
+  min-width: 200px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 2px;
 }
 
+/* ── FILAS ── */
 .row {
-  display:grid;
-  grid-template-columns: 30px 1fr 40px 1fr 40px 1fr 30px;
-  align-items:center;
-  margin:4px 0;
+  display: grid;
+  grid-template-columns: 20px 1fr 32px 1fr 32px 1fr 20px;
+  align-items: center;
+  justify-items: center;
+  margin: 3px 0;
+  width: 100%;
 }
 
-.left-section { display:flex; justify-content:flex-end; }
-.center-section { display:flex; justify-content:center; }
-.right-section { display:flex; justify-content:flex-start; }
-
-.seat {
-  width:28px;
-  height:28px;
-  margin:2px;
-  border:none;
-  border-radius:6px;
-  background:#64748b80;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.selected { background:#2563eb; }
-.occupied { background:#dc2626; cursor:not-allowed; }
-
-.wheelchair {
-  font-size:14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* 🔥 estados */
-.seat.wheelchair { background:#f59e0b; }
-.seat.wheelchair.selected { background:#2563eb; }
-.seat.wheelchair.occupied { background:#dc2626; }
-
-.tech {
-  background:#444;
-  height:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
-}
 
 .row-label {
-  text-align:center;
-  color:#94a3b8;
-  font-weight:bold;
+  width: 20px;
+  min-width: 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-weight: bold;
+  font-size: 11px;
+  flex-shrink: 0;
 }
 
-.big-gap { height:35px; }
 
-/* painel */
+.left-section  { display: flex; justify-content: flex-end;   width: 100%; }
+.center-section{ display: flex; justify-content: center;     width: 100%; }
+.right-section { display: flex; justify-content: flex-start; width: 100%; }
 
+
+/* ── LUGARES ── */
+.seat {
+  width: 26px;
+  height: 26px;
+  margin: 2px;
+  border: none;
+  border-radius: 5px;
+  background: #64748b80;
+  color: white;
+  font-weight: bold;
+  font-size: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.seat:hover:not(.occupied) { transform: scale(1.15); }
+.seat.selected  { background: #2563eb; }
+.seat.occupied  { background: #dc2626; cursor: not-allowed; }
+
+.seat.wheelchair            { background: #f59e0b; font-size: 13px; }
+.seat.wheelchair.selected   { background: #2563eb; }
+.seat.wheelchair.occupied   { background: #dc2626; }
+
+.tech {
+  background: #333;
+  height: 26px;
+  border-radius: 5px;
+  flex: 1;
+  max-width: 320px;
+}
+
+.big-gap { height: 28px; }
+
+/* ── PAINEL DIREITO ── */
 .right {
-  
-  flex:1;
-  padding:10px;
-  border-left:1px solid #1e293b;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+  width: 500px;
+  min-width: 300px;
+  padding: 16px 14px;
+  border-left: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
 }
 
-.legend { display:flex; flex-wrap:wrap; gap:8px; font-size:12px; }
+.logo-wrap { text-align: center; }
+.logo-wrap img { max-width: 160px; }
 
-.legend span {
-  width:15px;
-  height:15px;
-  border-radius:4px;
-  display:inline-block;
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  background: #1e293b;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.legend-item { display: flex; align-items: center; gap: 5px; }
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .counter {
-  background:#1e293b;
-  padding:8px;
-  border-radius:6px;
-  font-size:12px;
+  background: #1e293b;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  min-height: 48px;
 }
 
 .selected-list {
-  max-height:60px;
-  overflow:auto;
+  color: #93c5fd;
+  font-size: 12px;
+  margin-top: 4px;
+  word-break: break-all;
 }
+
+.form-group { display: flex; flex-direction: column; gap: 8px; }
 
 input {
-  width:100%;
-  padding:6px;
-  border-radius:6px;
-  border:none;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
 }
 
-button {
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  background:#2563eb;
-  color:white;
-  font-weight:bold;
-  width:80%;
-  align-self:center;
+input:focus { border-color: #2563eb; }
+input::placeholder { color: #64748b; }
+
+.btn-reservar {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
 }
+
+.btn-reservar:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+.info-box {
+  font-size: 13px;
+  background: #1e293b;
+  padding: 12px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.info-box ul {
+  padding-left: 16px;
+  margin: 8px 0 0;
+}
+
+.info-box ul li { margin-bottom: 4px; }
+
+.planta-link {
+  color: #60a5fa;
+  text-decoration: underline;
+  font-size: 13px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+#plantaBox { display: none; margin-top: 6px; }
+#plantaBox img { width: 100%; border-radius: 8px; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+
+  .main {
+    flex-direction: column;
+  }
+
+  .left {
+    padding: 12px 4px 16px;
+    /* permite scroll horizontal para o mapa */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* mapa encolhe para caber no ecrã por defeito */
+  #map-wrapper {
+    display: inline-block;
+    transform-origin: top left;
+  }
+
+  h2 { font-size: 15px; }
+
+  .right {
+    width: 100%;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid #1e293b;
+    padding: 16px;
+  }
+}
+
 </style>
 </head>
-
 <body>
 
 <div class="main">
 
-<div class="left">
-<h2>Reserva de Lugares - Ateneu Artístico Vilafranquense</h2>
-<div class="stage">PALCO</div>
-<div id="seats"></div>
+  <!-- MAPA -->
+  <div class="left">
+    <h2>Reserva de Lugares — Ateneu Artístico Vilafranquense</h2>
+    <div class="stage">P A L C O</div>
+    <div id="map-wrapper">
+      <div id="seats"></div>
+    </div>
+  </div>
+
+  <!-- PAINEL -->
+  <div class="right">
+
+    <div class="logo-wrap">
+      <img src="LOGO_ACADEMIA_branco.png" alt="Logo">
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Selecionado</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Ocupado</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Cadeira de rodas</div>
+    </div>
+
+    <div class="counter">
+      <b>Lugares selecionados:</b> <span id="count">0</span>
+      <div id="lista" class="selected-list"></div>
+    </div>
+
+    <div class="form-group">
+      <input id="aluno"    placeholder="Nome do Aluno">
+      <input id="nome"     placeholder="Nome do Responsável">
+      <input id="email"    placeholder="Email" type="email">
+      <input id="telefone" placeholder="Telefone" type="tel">
+    </div>
+
+    <button class="btn-reservar" onclick="reservar()">Reservar</button>
+
+    <div class="info-box">
+      <b>Bilhete único — 8€</b><br>
+      Cada espectador ocupa um lugar e paga o mesmo valor.<br>
+      Crianças até 3 anos ao colo não pagam.
+      <br><br>
+      <b>Condições:</b>
+      <ul>
+        <li>Lugares numerados, escolhidos no mapa.</li>
+        <li>Reserva confirmada só após pagamento.</li>
+        <li>Válida por 48h — depois os lugares são libertados.</li>
+        <li>Bilhetes não reembolsáveis após pagamento.</li>
+        <li>Recomenda-se chegada antecipada.</li>
+        <li>Após início, entrada pode ser condicionada.</li>
+        <li>A organização pode alterar condições por imprevistos.</li>
+      </ul>
+    </div>
+
+    <button class="planta-link" onclick="togglePlanta()">Ver Planta da Sala</button>
+    <div id="plantaBox">
+      <img src="planta.jpg" alt="Planta da sala">
+    </div>
+
+  </div>
 </div>
-
-<div class="right">
-  <div style="text-align:center; margin-bottom:10px;">
-  <img src="LOGO_ACADEMIA_branco.png" style="max-width:180px;">
-</div>
-
-<div class="legend">
-  <div><span style="background:#64748b80"></span> Livre</div>
-  <div><span style="background:#2563eb"></span> Selecionado</div>
-  <div><span style="background:#dc2626"></span> Ocupado</div>
-  <div><span style="background:#f59e0b"></span> Cadeira de Rodas</div>
-</div>
-
-<div class="counter">
-  <b>Bilhetes:</b> <span id="count">0</span><br>
-  <div id="lista" class="selected-list"></div>
-</div>
-
-<input id="aluno" placeholder="Nome do Aluno">
-<input id="nome" placeholder="Nome (Responsável pela reserva)">
-<input id="email" placeholder="Email">
-<input id="telefone" placeholder="Telefone">
-
-<button onclick="reservar()">Reservar</button>
-<div style="font-size:14px; background:#1e293b; padding:10px; border-radius:8px; margin-top:10px; text-align:left;">
-
-  <b>Bilhete único – 8€</b><br>
-  Cada espectador ocupa um lugar e paga o mesmo valor.<br>
-  Crianças até 3 anos ao colo não pagam.
-  
-  <br><br>
-
-  <b>Condições de reserva e bilheteira:</b>
-  <ul style="padding-left:15px;">
-    <li>Os lugares são numerados e escolhidos no mapa disponível.</li>
-    <li>A reserva só é confirmada após pagamento.</li>
-    <li>Reserva válida por 48 horas. Após esse período, os lugares são libertados.</li>
-    <li>Bilhetes não reembolsáveis após pagamento.</li>
-    <li>Recomenda-se chegada antecipada.</li>
-    <li>Após início, a entrada pode ser condicionada.</li>
-    <li>A organização pode alterar condições por motivos imprevistos.</li>
-  </ul>
-</div>
-<a href="#" onclick="togglePlanta()" style="color:#60a5fa; text-decoration:underline;">
-  Ver Planta da Sala
-</a>
-
-<div id="plantaBox" style="display:none; margin-top:10px; text-align:center;">
-  <img src="planta.jpg" style="width:100%; border-radius:8px;">
-</div>
-
-
-</div>
-</div>
-
 
 <script>
 
 const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
 const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
-function togglePlanta(){
-  const el = document.getElementById("plantaBox");
-  el.style.display = el.style.display === "none" ? "block" : "none";
-}
 let temErroOrfaos = false;
 let ocupados = [];
 const selectedSeats = [];
 const container = document.getElementById("seats");
 
 const layout = {
-
-A:[[23,21,19,17,15,"13w"],["11w","9w",7,5,3,1,2,4,6,8,10,12],[14,16,18,20,22,24]],
-B:[[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
-C:[[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
-D:[[31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-E:[[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
-F:[[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
-G:[[35,33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-H:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-I:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-J:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-K:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-L:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-M:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14,16],[18,20,22,24,26,28,30,32,34]],
-
-BREAK:true,
-
-N:[[25,23,21,19,17,15,13,11],["5w","3w","1w",2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-O:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-P:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-Q:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-R:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,0,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-S:[[15,13,11],"tech",[12,14,16,18,20,22,24,26]],
-T:[[11],"tech",[12,14]]
-
+  A: [[23,21,19,17,15,"13w"],["11w","9w",7,5,3,1,2,4,6,8,10,12],[14,16,18,20,22,24]],
+  B: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
+  C: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
+  D: [[31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  E: [[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
+  F: [[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
+  G: [[35,33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  H: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  I: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  J: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  K: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  L: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+  M: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14,16],[18,20,22,24,26,28,30,32,34]],
+  BREAK: true,
+  N: [[25,23,21,19,17,15,13,11],["5w","3w","1w",2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+  O: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+  P: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+  Q: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+  R: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,0,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+  S: [[15,13,11],"tech",[12,14,16,18,20,22,24,26]],
+  T: [[11],"tech",[12,14]]
 };
 
-function updateUI(){
-  count.innerText = selectedSeats.length;
-  lista.innerText = selectedSeats.join(", ");
+/* ── escala o mapa em mobile para caber no ecrã ── */
+function scaleMapa() {
+  const wrapper = document.getElementById("map-wrapper");
+  if(window.innerWidth <= 768) {
+    const available = window.innerWidth - 16;
+    const natural   = wrapper.scrollWidth / (parseFloat(wrapper.style.transform?.replace("scale(","")) || 1);
+    const scale     = Math.min(1, available / wrapper.scrollWidth);
+    wrapper.style.transform       = `scale(${scale})`;
+    wrapper.style.transformOrigin = "top left";
+    wrapper.parentElement.style.height = (wrapper.scrollHeight * scale) + "px";
+  } else {
+    wrapper.style.transform = "";
+    wrapper.parentElement.style.height = "";
+  }
 }
 
-async function carregarLugares(){
+function togglePlanta() {
+  const el = document.getElementById("plantaBox");
+  el.style.display = el.style.display === "none" ? "block" : "none";
+}
 
-  const res = await fetch(apiLugares);
-  const data = await res.json();
+function updateUI() {
+  document.getElementById("count").innerText = selectedSeats.length;
+  document.getElementById("lista").innerText = selectedSeats.join(", ");
+}
 
-  ocupados = [];
+async function carregarLugares() {
+  try {
+    const res  = await fetch(apiLugares);
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
 
-  data.value.forEach(i=>{
-    if(i.fields.Lugares){
-      ocupados.push(...i.fields.Lugares.split(","));
+    ocupados = [];
+    if(data.value && Array.isArray(data.value)) {
+      data.value.forEach(i => {
+        if(i.fields && i.fields.Lugares)
+          ocupados.push(...i.fields.Lugares.split(","));
+      });
     }
-  });
+  } catch(err) {
+    console.error("Erro ao carregar lugares:", err);
+  }
 
   const selectedAntes = [...selectedSeats];
-
   container.innerHTML = "";
   render();
-
   selectedSeats.length = 0;
 
-  document.querySelectorAll(".seat").forEach(btn=>{
-    const seatId = btn.title?.replace("Lugar ","");
-
-    if(selectedAntes.includes(seatId) && !ocupados.includes(seatId)){
+  document.querySelectorAll(".seat").forEach(btn => {
+    const seatId = btn.dataset.id;
+    if(selectedAntes.includes(seatId) && !ocupados.includes(seatId)) {
       btn.classList.add("selected");
       selectedSeats.push(seatId);
     }
   });
 
   updateUI();
+  scaleMapa();
 }
 
-function render(){
+function render() {
+  for(const row in layout) {
 
-  for(const row in layout){
-
-    if(row==="BREAK"){
-      const gap=document.createElement("div");
-      gap.className="big-gap";
+    if(row === "BREAK") {
+      const gap = document.createElement("div");
+      gap.className = "big-gap";
       container.appendChild(gap);
       continue;
     }
 
-    const rowDiv=document.createElement("div");
-    rowDiv.className="row";
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "row";
 
     // label esquerda
-    const leftLabel=document.createElement("div");
-    leftLabel.className="row-label";
-    leftLabel.innerText=row;
-    rowDiv.appendChild(leftLabel);
+    const ll = document.createElement("div");
+    ll.className = "row-label";
+    ll.innerText = row;
+    rowDiv.appendChild(ll);
 
-    layout[row].forEach((section,i)=>{
+layout[row].forEach((section, i) => {
 
-      if(section==="tech"){
-        const tech=document.createElement("div");
-        tech.className="tech";
-        tech.innerText="";
-        rowDiv.appendChild(tech);
-      }
-      else{
+  // corredor DEPOIS da secção 0 e da secção 1
+  if(i === 1 || i === 2) {
+    const aisle = document.createElement("div");
+    rowDiv.appendChild(aisle);
+  }
 
-        const sec=document.createElement("div");
+  if(section === "tech") {
+    const tech = document.createElement("div");
+    tech.className = "tech";
+    rowDiv.appendChild(tech);
+    return;
+  }
 
-        sec.className =
-          i===0 ? "left-section" :
-          i===1 ? "center-section" :
-          "right-section";
 
-        section.forEach(seat=>{
+      const sec = document.createElement("div");
+      sec.className = i === 0 ? "left-section" : i === 1 ? "center-section" : "right-section";
 
-          let num=seat;
-          let isWheel=false;
+      section.forEach(seat => {
+        let num     = seat;
+        let isWheel = false;
 
-          if(typeof seat==="string" && seat.includes("w")){
-            num=seat.replace("w","");
-            isWheel=true;
-          }
+        if(typeof seat === "string" && seat.includes("w")) {
+          num     = seat.replace("w", "");
+          isWheel = true;
+        }
 
-          const seatId=row+num;
+        const seatId = row + num;
+        const btn    = document.createElement("button");
+        btn.className    = "seat";
+        btn.dataset.id   = seatId;
+        btn.title        = "Lugar " + seatId;
 
-          const btn=document.createElement("button");
-          btn.className="seat";
-          btn.title="Lugar "+seatId;
+        if(isWheel) {
+          btn.classList.add("wheelchair");
+          btn.innerHTML = "♿";
+        } else {
+          btn.innerText = num;
+        }
 
-          if(isWheel){
-            btn.classList.add("wheelchair");
-            btn.innerHTML="♿";
+        if(ocupados.includes(seatId)) btn.classList.add("occupied");
+
+        btn.onclick = () => {
+          if(btn.classList.contains("occupied")) return;
+
+          const idx = selectedSeats.indexOf(seatId);
+          if(idx > -1) {
+            selectedSeats.splice(idx, 1);
+            btn.classList.remove("selected");
           } else {
-            btn.innerText=num;
+            selectedSeats.push(seatId);
+            btn.classList.add("selected");
           }
 
-          if(ocupados.includes(seatId)){
-            btn.classList.add("occupied");
+          // validação órfãos
+          let total = 0, ocup = 0;
+          for(const r in layout) {
+            if(r === "BREAK") continue;
+            layout[r].forEach(sec => {
+              if(sec === "tech") return;
+              sec.forEach(s => {
+                const n = typeof s === "string" ? s.replace("w","") : s;
+                total++;
+                if(ocupados.includes(r+n) || selectedSeats.includes(r+n)) ocup++;
+              });
+            });
           }
 
-btn.onclick = () => {
+          temErroOrfaos = false;
+          if(ocup / total < 0.7) {
+            for(const r in layout) {
+              if(r === "BREAK") continue;
+              const fila = [];
+              layout[r].forEach(sec => {
+                if(sec === "tech") return;
+                sec.forEach(s => fila.push(r + (typeof s==="string" ? s.replace("w","") : s)));
+              });
+              const estado = fila.map(s => ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0);
+              for(let i = 1; i < estado.length - 1; i++) {
+                if(estado[i]===0 && estado[i-1]===1 && estado[i+1]===1) temErroOrfaos = true;
+              }
+            }
+          }
 
-  if(btn.classList.contains("occupied")) return;
+          updateUI();
+        };
 
-  const jaSelecionado = selectedSeats.includes(seatId);
-
-  // 👉 aplicar seleção
-  if(jaSelecionado){
-    selectedSeats.splice(selectedSeats.indexOf(seatId),1);
-    btn.classList.remove("selected");
-  } else {
-    selectedSeats.push(seatId);
-    btn.classList.add("selected");
-  }
-
-  // 🔥 CALCULAR OCUPAÇÃO GLOBAL DA SALA
-  let total = 0, ocup = 0;
-
-  for(const r in layout){
-
-    if(r==="BREAK") continue;
-
-    layout[r].forEach(sec=>{
-      if(sec==="tech") return;
-
-      sec.forEach(s=>{
-        let n = typeof s==="string"?s.replace("w",""):s;
-
-        total++;
-
-        if(ocupados.includes(r+n) || selectedSeats.includes(r+n)){
-          ocup++;
-        }
-      });
-    });
-  }
-
-  const percentagemSala = ocup / total;
-
-  // 🔥 reset erro
-  temErroOrfaos = false;
-
-  // 🔥 só validar se sala < 70%
-  if(percentagemSala < 0.7){
-
-    for(const row in layout){
-
-      if(row==="BREAK") continue;
-
-      let fila = [];
-
-      layout[row].forEach(sec=>{
-        if(sec==="tech") return;
-
-        sec.forEach(s=>{
-          let n = typeof s==="string"?s.replace("w",""):s;
-          fila.push(row+n);
-        });
+        sec.appendChild(btn);
       });
 
-      const estado = fila.map(s =>
-        ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0
-      );
-
-      for(let i=1;i<estado.length-1;i++){
-
-        if(
-          estado[i] === 0 &&
-          estado[i-1] === 1 &&
-          estado[i+1] === 1
-        ){
-          temErroOrfaos = true;
-        }
-      }
-    }
-  }
-
-  // 🔥 feedback opcional (debug ou UI)
-  if(temErroOrfaos){
-    console.log("⚠️ Seleção cria lugares órfãos");
-  }
-
-  updateUI();
-};
-
-          sec.appendChild(btn);
-        });
-
-        rowDiv.appendChild(sec);
-      }
-
-      // corredores (2)
-      if(i < 2){
-        const aisle=document.createElement("div");
-        rowDiv.appendChild(aisle);
-      }
-
+      rowDiv.appendChild(sec);
     });
 
     // label direita
-    const rightLabel=document.createElement("div");
-    rightLabel.className="row-label";
-    rightLabel.innerText=row;
-    rowDiv.appendChild(rightLabel);
+    const rl = document.createElement("div");
+    rl.className = "row-label";
+    rl.innerText = row;
+    rowDiv.appendChild(rl);
 
     container.appendChild(rowDiv);
   }
 }
 
-async function reservar(){
-if(temErroOrfaos){
-  alert("A seleção deixa lugares isolados. Escolha mais lugares ou seleccione outro lugar.");
-  return;
-}
-  const aluno = document.getElementById("aluno").value.trim();
-  const nome = document.getElementById("nome").value.trim();
-  const email = document.getElementById("email").value.trim();
+async function reservar() {
+  if(temErroOrfaos) {
+    alert("A seleção deixa lugares isolados. Escolha mais lugares ou selecione outro lugar.");
+    return;
+  }
+
+  const aluno    = document.getElementById("aluno").value.trim();
+  const nome     = document.getElementById("nome").value.trim();
+  const email    = document.getElementById("email").value.trim();
   const telefone = document.getElementById("telefone").value.trim();
 
-  if(!aluno || !nome || !email || !telefone){
-    alert("Preencha todos os campos!");
-    return;
-  }
+  if(!aluno || !nome || !email || !telefone) { alert("Preencha todos os campos!"); return; }
+  if(selectedSeats.length === 0)             { alert("Escolha pelo menos um lugar!"); return; }
 
-  if(selectedSeats.length === 0){
-    alert("Escolha lugares!");
-    return;
-  }
-
-  const data = {
-    title: aluno,        // 👉 Nome do Aluno (Title)
-    nome: nome,          // 👉 Nome da reserva
-    email: email,
-    telefone: telefone,
-    lugares: selectedSeats.join(",")
-  };
-
-  await fetch(apiReservar,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(data)
+  await fetch(apiReservar, {
+    method:  "POST",
+    headers: {"Content-Type": "application/json"},
+    body:    JSON.stringify({ title: aluno, nome, email, telefone, lugares: selectedSeats.join(",") })
   });
 
   alert("Reserva feita!");
-
   selectedSeats.length = 0;
-
-  document.getElementById("aluno").value = "";
-  document.getElementById("nome").value = "";
-  document.getElementById("email").value = "";
-  document.getElementById("telefone").value = "";
-
+  ["aluno","nome","email","telefone"].forEach(id => document.getElementById(id).value = "");
   updateUI();
   carregarLugares();
 }
 
+window.addEventListener("resize", scaleMapa);
 carregarLugares();
-setInterval(carregarLugares,10000);
+setInterval(carregarLugares, 10000);
 
 </script>
-
 </body>
 </html>
