@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Reserva</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(180deg,#0f172a,#020617);
+  color:white;
+  margin:0;
+}
+
+.main { display:flex; height:100vh; }
+
+.left { flex:3; overflow:auto; text-align:center; }
+
+h2 { text-align:center; }
+
+.stage {
+  background:#334155;
+  margin:10px auto;
+  padding:10px;
+  width:60%;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.row {
+  display:grid;
+  grid-template-columns: 30px 1fr 40px 1fr 40px 1fr 30px;
+  align-items:center;
+  margin:4px 0;
+}
+
+.left-section { display:flex; justify-content:flex-end; }
+.center-section { display:flex; justify-content:center; }
+.right-section { display:flex; justify-content:flex-start; }
+
+.seat {
+  width:28px;
+  height:28px;
+  margin:2px;
+  border:none;
+  border-radius:6px;
+  background:#64748b80;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.selected { background:#2563eb; }
+.occupied { background:#dc2626; cursor:not-allowed; }
+
+.wheelchair {
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 🔥 estados */
+.seat.wheelchair { background:#f59e0b; }
+.seat.wheelchair.selected { background:#2563eb; }
+.seat.wheelchair.occupied { background:#dc2626; }
+
+.tech {
+  background:#444;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:6px;
+}
+
+.row-label {
+  text-align:center;
+  color:#94a3b8;
+  font-weight:bold;
+}
+
+.big-gap { height:35px; }
+
+/* painel */
+
+.right {
+  
+  flex:1;
+  padding:10px;
+  border-left:1px solid #1e293b;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.legend { display:flex; flex-wrap:wrap; gap:8px; font-size:12px; }
+
+.legend span {
+  width:15px;
+  height:15px;
+  border-radius:4px;
+  display:inline-block;
+}
+
+.counter {
+  background:#1e293b;
+  padding:8px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+.selected-list {
+  max-height:60px;
+  overflow:auto;
+}
+
+input {
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  background:#2563eb;
+  color:white;
+  font-weight:bold;
+  width:80%;
+  align-self:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="main">
+
+<div class="left">
+<h2>Reserva de Lugares - Ateneu Artístico Vilafranquense</h2>
+<div class="stage">PALCO</div>
+<div id="seats"></div>
+</div>
+
+<div class="right">
+  <div style="text-align:center; margin-bottom:10px;">
+  <img src="LOGO_ACADEMIA_branco.png" style="max-width:180px;">
+</div>
+
+<div class="legend">
+  <div><span style="background:#64748b80"></span> Livre</div>
+  <div><span style="background:#2563eb"></span> Selecionado</div>
+  <div><span style="background:#dc2626"></span> Ocupado</div>
+  <div><span style="background:#f59e0b"></span> Cadeira de Rodas</div>
+</div>
+
+<div class="counter">
+  <b>Bilhetes:</b> <span id="count">0</span><br>
+  <div id="lista" class="selected-list"></div>
+</div>
+
+<input id="aluno" placeholder="Nome do Aluno">
+<input id="nome" placeholder="Nome (Responsável pela reserva)">
+<input id="email" placeholder="Email">
+<input id="telefone" placeholder="Telefone">
+
+<button onclick="reservar()">Reservar</button>
+<div style="font-size:14px; background:#1e293b; padding:10px; border-radius:8px; margin-top:10px; text-align:left;">
+
+  <b>Bilhete único – 8€</b><br>
+  Cada espectador ocupa um lugar e paga o mesmo valor.<br>
+  Crianças até 3 anos ao colo não pagam.
+  
+  <br><br>
+
+  <b>Condições de reserva e bilheteira:</b>
+  <ul style="padding-left:15px;">
+    <li>Os lugares são numerados e escolhidos no mapa disponível.</li>
+    <li>A reserva só é confirmada após pagamento.</li>
+    <li>Reserva válida por 48 horas. Após esse período, os lugares são libertados.</li>
+    <li>Bilhetes não reembolsáveis após pagamento.</li>
+    <li>Recomenda-se chegada antecipada.</li>
+    <li>Após início, a entrada pode ser condicionada.</li>
+    <li>A organização pode alterar condições por motivos imprevistos.</li>
+  </ul>
+</div>
+<a href="#" onclick="togglePlanta()" style="color:#60a5fa; text-decoration:underline;">
+  Ver Planta da Sala
+</a>
+
+<div id="plantaBox" style="display:none; margin-top:10px; text-align:center;">
+  <img src="planta.jpg" style="width:100%; border-radius:8px;">
+</div>
+
+
+</div>
+</div>
+
+
+<script>
+
+const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
+const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
+function togglePlanta(){
+  const el = document.getElementById("plantaBox");
+  el.style.display = el.style.display === "none" ? "block" : "none";
+}
+let temErroOrfaos = false;
+let ocupados = [];
+const selectedSeats = [];
+const container = document.getElementById("seats");
+
+const layout = {
+
+A:[[23,21,19,17,15,"13w"],["11w","9w",7,5,3,1,2,4,6,8,10,12],[14,16,18,20,22,24]],
+B:[[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
+C:[[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
+D:[[31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+E:[[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
+F:[[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
+G:[[35,33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+H:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+I:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+J:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+K:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+L:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
+M:[[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14,16],[18,20,22,24,26,28,30,32,34]],
+
+BREAK:true,
+
+N:[[25,23,21,19,17,15,13,11],["5w","3w","1w",2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+O:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+P:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+Q:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+R:[[25,23,21,19,17,15,13,11],[9,7,5,3,1,0,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
+S:[[15,13,11],"tech",[12,14,16,18,20,22,24,26]],
+T:[[11],"tech",[12,14]]
+
+};
+
+function updateUI(){
+  count.innerText = selectedSeats.length;
+  lista.innerText = selectedSeats.join(", ");
+}
+
+async function carregarLugares(){
+
+  const res = await fetch(apiLugares);
+  const data = await res.json();
+
+  ocupados = [];
+
+  data.value.forEach(i=>{
+    if(i.fields.Lugares){
+      ocupados.push(...i.fields.Lugares.split(","));
+    }
+  });
+
+  const selectedAntes = [...selectedSeats];
+
+  container.innerHTML = "";
+  render();
+
+  selectedSeats.length = 0;
+
+  document.querySelectorAll(".seat").forEach(btn=>{
+    const seatId = btn.title?.replace("Lugar ","");
+
+    if(selectedAntes.includes(seatId) && !ocupados.includes(seatId)){
+      btn.classList.add("selected");
+      selectedSeats.push(seatId);
+    }
+  });
+
+  updateUI();
+}
+
+function render(){
+
+  for(const row in layout){
+
+    if(row==="BREAK"){
+      const gap=document.createElement("div");
+      gap.className="big-gap";
+      container.appendChild(gap);
+      continue;
+    }
+
+    const rowDiv=document.createElement("div");
+    rowDiv.className="row";
+
+    // label esquerda
+    const leftLabel=document.createElement("div");
+    leftLabel.className="row-label";
+    leftLabel.innerText=row;
+    rowDiv.appendChild(leftLabel);
+
+    layout[row].forEach((section,i)=>{
+
+      if(section==="tech"){
+        const tech=document.createElement("div");
+        tech.className="tech";
+        tech.innerText="";
+        rowDiv.appendChild(tech);
+      }
+      else{
+
+        const sec=document.createElement("div");
+
+        sec.className =
+          i===0 ? "left-section" :
+          i===1 ? "center-section" :
+          "right-section";
+
+        section.forEach(seat=>{
+
+          let num=seat;
+          let isWheel=false;
+
+          if(typeof seat==="string" && seat.includes("w")){
+            num=seat.replace("w","");
+            isWheel=true;
+          }
+
+          const seatId=row+num;
+
+          const btn=document.createElement("button");
+          btn.className="seat";
+          btn.title="Lugar "+seatId;
+
+          if(isWheel){
+            btn.classList.add("wheelchair");
+            btn.innerHTML="♿";
+          } else {
+            btn.innerText=num;
+          }
+
+          if(ocupados.includes(seatId)){
+            btn.classList.add("occupied");
+          }
+
+btn.onclick = () => {
+
+  if(btn.classList.contains("occupied")) return;
+
+  const jaSelecionado = selectedSeats.includes(seatId);
+
+  // 👉 aplicar seleção
+  if(jaSelecionado){
+    selectedSeats.splice(selectedSeats.indexOf(seatId),1);
+    btn.classList.remove("selected");
+  } else {
+    selectedSeats.push(seatId);
+    btn.classList.add("selected");
+  }
+
+  // 🔥 CALCULAR OCUPAÇÃO GLOBAL DA SALA
+  let total = 0, ocup = 0;
+
+  for(const r in layout){
+
+    if(r==="BREAK") continue;
+
+    layout[r].forEach(sec=>{
+      if(sec==="tech") return;
+
+      sec.forEach(s=>{
+        let n = typeof s==="string"?s.replace("w",""):s;
+
+        total++;
+
+        if(ocupados.includes(r+n) || selectedSeats.includes(r+n)){
+          ocup++;
+        }
+      });
+    });
+  }
+
+  const percentagemSala = ocup / total;
+
+  // 🔥 reset erro
+  temErroOrfaos = false;
+
+  // 🔥 só validar se sala < 70%
+  if(percentagemSala < 0.7){
+
+    for(const row in layout){
+
+      if(row==="BREAK") continue;
+
+      let fila = [];
+
+      layout[row].forEach(sec=>{
+        if(sec==="tech") return;
+
+        sec.forEach(s=>{
+          let n = typeof s==="string"?s.replace("w",""):s;
+          fila.push(row+n);
+        });
+      });
+
+      const estado = fila.map(s =>
+        ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0
+      );
+
+      for(let i=1;i<estado.length-1;i++){
+
+        if(
+          estado[i] === 0 &&
+          estado[i-1] === 1 &&
+          estado[i+1] === 1
+        ){
+          temErroOrfaos = true;
+        }
+      }
+    }
+  }
+
+  // 🔥 feedback opcional (debug ou UI)
+  if(temErroOrfaos){
+    console.log("⚠️ Seleção cria lugares órfãos");
+  }
+
+  updateUI();
+};
+
+          sec.appendChild(btn);
+        });
+
+        rowDiv.appendChild(sec);
+      }
+
+      // corredores (2)
+      if(i < 2){
+        const aisle=document.createElement("div");
+        rowDiv.appendChild(aisle);
+      }
+
+    });
+
+    // label direita
+    const rightLabel=document.createElement("div");
+    rightLabel.className="row-label";
+    rightLabel.innerText=row;
+    rowDiv.appendChild(rightLabel);
+
+    container.appendChild(rowDiv);
+  }
+}
+
+async function reservar(){
+if(temErroOrfaos){
+  alert("A seleção deixa lugares isolados. Escolha mais lugares ou seleccione outro lugar.");
+  return;
+}
+  const aluno = document.getElementById("aluno").value.trim();
+  const nome = document.getElementById("nome").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const telefone = document.getElementById("telefone").value.trim();
+
+  if(!aluno || !nome || !email || !telefone){
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  if(selectedSeats.length === 0){
+    alert("Escolha lugares!");
+    return;
+  }
+
+  const data = {
+    title: aluno,        // 👉 Nome do Aluno (Title)
+    nome: nome,          // 👉 Nome da reserva
+    email: email,
+    telefone: telefone,
+    lugares: selectedSeats.join(",")
+  };
+
+  await fetch(apiReservar,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(data)
+  });
+
+  alert("Reserva feita!");
+
+  selectedSeats.length = 0;
+
+  document.getElementById("aluno").value = "";
+  document.getElementById("nome").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("telefone").value = "";
+
+  updateUI();
+  carregarLugares();
+}
+
+carregarLugares();
+setInterval(carregarLugares,10000);
+
+</script>
+
+</body>
+</html>
