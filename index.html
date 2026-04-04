@@ -235,10 +235,7 @@ input::placeholder { color: #64748b; }
   }
 
   /* mapa encolhe para caber no ecrã por defeito */
-  #map-wrapper {
-    display: inline-block;
-    transform-origin: top left;
-  }
+
 
   h2 { font-size: 15px; }
 
@@ -250,7 +247,20 @@ input::placeholder { color: #64748b; }
     padding: 16px;
   }
 }
+#map-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
+#map-wrapper {
+  display: inline-block;
+}
+
+#seats {
+  display: inline-block;
+}
 </style>
 </head>
 <body>
@@ -261,9 +271,11 @@ input::placeholder { color: #64748b; }
   <div class="left">
     <h2>Reserva de Lugares — Ateneu Artístico Vilafranquense</h2>
     <div class="stage">P A L C O</div>
-    <div id="map-wrapper">
-      <div id="seats"></div>
-    </div>
+<div id="map-container">
+  <div id="map-wrapper">
+    <div id="seats"></div>
+  </div>
+</div>
   </div>
 
   <!-- PAINEL -->
