@@ -246,12 +246,6 @@ input::placeholder { color: #64748b; }
   }
 }
 
-#map-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
 #seats {
   display: inline-block;
   margin: 0 auto;
@@ -645,9 +639,34 @@ if (window.innerWidth <= 768) {
   let isDragging = false;
   let lastDistance = null;
 
-  function updateTransform() {
-    map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+function updateTransform() {
+
+  const containerRect = containerMap.getBoundingClientRect();
+
+  const mapWidth = map.scrollWidth * scale;
+  const mapHeight = map.scrollHeight * scale;
+
+  let maxX = 0;
+  let minX = containerRect.width - mapWidth;
+
+  let maxY = 0;
+  let minY = containerRect.height - mapHeight;
+
+  // 👉 se o mapa for menor que o container → centra e bloqueia
+  if (mapWidth <= containerRect.width) {
+    posX = (containerRect.width - mapWidth) / 2;
+  } else {
+    posX = Math.min(maxX, Math.max(minX, posX));
   }
+
+  if (mapHeight <= containerRect.height) {
+    posY = 20;
+  } else {
+    posY = Math.min(maxY, Math.max(minY, posY));
+  }
+
+  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
 
  updateTransform();
 setTimeout(centerMap, 100);
@@ -657,11 +676,6 @@ setTimeout(centerMap, 100);
 
   posX = (containerRect.width - rect.width * scale) / 2;
   posY = 20; // margem do topo
-  posX = Math.min(posX, 200);
-posX = Math.max(posX, -1000);
-
-posY = Math.min(posY, 200);
-posY = Math.max(posY, -800);
 
   updateTransform();
 }
@@ -697,7 +711,7 @@ posY = Math.max(posY, -800);
       return;
     }
 
-    if (isDragging && e.touches.length === 1) {
+    if (isDragging && e.touches.length === 1 && scale > 1) {
       posX = e.touches[0].clientX - startX;
       posY = e.touches[0].clientY - startY;
       updateTransform();
