@@ -41,12 +41,15 @@ h2 {
   background: #334155;
   margin: 0 auto 14px;
   padding: 8px 16px;
-  width: fit-content;
-  min-width: unset;
+
+  width: 100%;
+  max-width: 900px; /* ajusta se necessário */
+
   border-radius: 10px;
   font-weight: bold;
   font-size: 14px;
   letter-spacing: 2px;
+  text-align: center;
 }
 
 /* ── FILAS ── */
@@ -291,6 +294,62 @@ input::placeholder { color: #64748b; }
   left: 0;
   transform-origin: 0 0;
 }
+/* Estilo da Dica Mobile */
+#pinch-hint {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Deixa os toques passarem para o mapa */
+  transition: opacity 0.5s ease;
+}
+
+/* Esconder em Desktop por defeito */
+@media (min-width: 769px) {
+  #pinch-hint { display: none; }
+}
+
+.hint-content {
+  text-align: center;
+  color: white;
+  padding: 20px;
+}
+
+.finger-icon {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 15px;
+}
+
+.finger {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.f1 { top: 0; left: 0; animation: pinch1 2s infinite; }
+.f2 { bottom: 0; right: 0; animation: pinch2 2s infinite; }
+
+@keyframes pinch1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(15px, 15px); }
+}
+
+@keyframes pinch2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-15px, -15px); }
+}
+
+#pinch-hint.fade-out {
+  opacity: 0;
+}
 </style>
 </head>
 <body>
@@ -302,6 +361,16 @@ input::placeholder { color: #64748b; }
     <h2>Reserva de Lugares — Ateneu Artístico Vilafranquense</h2>
     <div class="stage">P A L C O</div>
 <div id="map-container">
+  <div id="pinch-hint">
+    <div class="hint-content">
+      <div class="finger-icon">
+        <span class="finger f1"></span>
+        <span class="finger f2"></span>
+      </div>
+      <p>Use dois dedos para zoom e arraste para mover</p>
+    </div>
+  </div>
+  
   <div id="map-wrapper">
     <div id="seats"></div>
   </div>
@@ -506,7 +575,16 @@ layout[row].forEach((section, i) => {
       sec.className = i === 0 ? "left-section" : i === 1 ? "center-section" : "right-section";
 
       section.forEach(seat => {
-        let num     = seat;
+  // 👉 NOVO: Se o lugar for vazio, desenha um espaço em vez de um botão
+  if (seat === "") {
+    const spacer = document.createElement("div");
+    spacer.style.width = "26px"; // Mesma largura do botão .seat
+    spacer.style.margin = "2px";  // Mesma margem do botão .seat
+    sec.appendChild(spacer);
+    return;
+  }
+
+  let num = seat;
         let isWheel = false;
 
         if(typeof seat === "string" && seat.includes("w")) {
@@ -627,6 +705,23 @@ carregarLugares();
 setInterval(carregarLugares, 10000);
 // Apenas para Mobile
 if (window.innerWidth <= 768) {
+  // Dentro do seu script mobile:
+const hint = document.getElementById("pinch-hint");
+
+function hideHint() {
+  if (hint) {
+    hint.classList.add("fade-out");
+    setTimeout(() => hint.remove(), 500); // Remove do código após o fade
+    // Removemos os listeners para não sobrecarregar
+    containerMap.removeEventListener("touchstart", hideHint);
+  }
+}
+
+// Quando o utilizador tocar no mapa pela primeira vez, a dica desaparece
+containerMap.addEventListener("touchstart", hideHint);
+
+// Opcional: Desaparecer sozinha após 4 segundos se ninguém tocar
+setTimeout(hideHint, 4000);
   const map = document.getElementById("map-wrapper");
   const containerMap = document.getElementById("map-container");
 
