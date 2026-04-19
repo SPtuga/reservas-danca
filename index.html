@@ -29,7 +29,7 @@ body {
   min-width: 0;
   padding: 16px 8px 32px;
   text-align: center;
-  overflow-x: auto;
+  overflow: hidden; /* 🔥 remove scroll desktop */
 }
 
 h2 {
@@ -228,10 +228,9 @@ input::placeholder { color: #64748b; }
   }
 
   .left {
-    padding: 12px 4px 16px;
-    /* permite scroll horizontal para o mapa */
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  padding: 12px 4px 16px;
+  overflow-x: auto; /*
+  -webkit-overflow-scrolling: touch;
   }
 
   /* mapa encolhe para caber no ecrã por defeito */
@@ -249,17 +248,19 @@ input::placeholder { color: #64748b; }
 }
 #map-container {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+  touch-action: pan-x pan-y;
 }
 
 #map-wrapper {
-  display: inline-block;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 #seats {
   display: inline-block;
+  margin: 0 auto;
 }
 .seat.temp {
   background: #fbbf24; /* amarelo */
@@ -401,21 +402,7 @@ const layout = {
   T: [[11],"tech",[12,14]]
 };
 
-/* ── escala o mapa em mobile para caber no ecrã ── */
-function scaleMapa() {
-  const wrapper = document.getElementById("map-wrapper");
-  if(window.innerWidth <= 768) {
-    const available = window.innerWidth - 16;
-    const natural   = wrapper.scrollWidth / (parseFloat(wrapper.style.transform?.replace("scale(","")) || 1);
-    const scale     = Math.min(1, available / wrapper.scrollWidth);
-    wrapper.style.transform       = `scale(${scale})`;
-    wrapper.style.transformOrigin = "top left";
-    wrapper.parentElement.style.height = (wrapper.scrollHeight * scale) + "px";
-  } else {
-    wrapper.style.transform = "";
-    wrapper.parentElement.style.height = "";
-  }
-}
+
 
 function togglePlanta() {
   const el = document.getElementById("plantaBox");
@@ -616,7 +603,7 @@ async function reservar() {
   carregarLugares();
 }
 
-window.addEventListener("resize", scaleMapa);
+
 carregarLugares();
 setInterval(carregarLugares, 10000);
 
