@@ -640,13 +640,6 @@ if (window.innerWidth <= 768) {
   let isDragging = false;
   let lastDistance = null;
 
-  function calculateInitialScale() {
-    const containerWidth = containerMap.clientWidth;
-    const mapWidth = map.scrollWidth;
-
-    scale = Math.min(1, containerWidth / mapWidth);
-  }
-
   function updateTransform() {
 
     const containerWidth = containerMap.clientWidth;
@@ -667,24 +660,24 @@ if (window.innerWidth <= 768) {
     map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
-function centerMap() {
-  const containerWidth = containerMap.clientWidth;
-  const mapWidth = map.scrollWidth * scale;
+  function centerMap() {
+    const containerWidth = containerMap.clientWidth;
+    const mapWidth = map.scrollWidth * scale;
 
-  posX = (containerWidth - mapWidth) / 2;
-  posY = 10;
+    posX = (containerWidth - mapWidth) / 2;
+    posY = 10;
 
-  updateTransform();
-}
-minScale = containerMap.clientWidth / map.scrollWidth;
-scale = minScale;
-  // 👉 inicialização correta
-setTimeout(() => {
-  minScale = containerMap.clientWidth / map.scrollWidth;
-  scale = minScale;
-  centerMap();
-}, 100);
+    updateTransform();
+  }
 
+  // 👉 zoom inicial (mostrar tudo)
+  setTimeout(() => {
+    minScale = containerMap.clientWidth / map.scrollWidth;
+    scale = minScale;
+    centerMap();
+  }, 100);
+
+  // 👉 START
   containerMap.addEventListener("touchstart", e => {
     if (e.touches.length === 1) {
       isDragging = true;
@@ -693,10 +686,10 @@ setTimeout(() => {
     }
   });
 
+  // 👉 MOVE
   containerMap.addEventListener("touchmove", e => {
 
-    e.preventDefault();
-
+    // PINCH
     if (e.touches.length === 2) {
 
       let dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -709,9 +702,6 @@ setTimeout(() => {
       let delta = distance - lastDistance;
 
       scale += delta * 0.002;
-
-      const minScale = containerMap.clientWidth / map.scrollWidth;
-
       scale = Math.max(minScale, Math.min(2, scale));
 
       lastDistance = distance;
@@ -720,13 +710,17 @@ setTimeout(() => {
       return;
     }
 
-    if (isDragging && e.touches.length === 1 && scale > minScale) {
+    // DRAG só se mapa não couber
+    const mapWidth = map.scrollWidth * scale;
+    const containerWidth = containerMap.clientWidth;
+
+    if (isDragging && e.touches.length === 1 && mapWidth > containerWidth) {
       posX = e.touches[0].clientX - startX;
       posY = e.touches[0].clientY - startY;
       updateTransform();
     }
 
-  }, { passive: false });
+  }, { passive: true });
 
   containerMap.addEventListener("touchend", () => {
     isDragging = false;
