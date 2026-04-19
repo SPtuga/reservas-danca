@@ -398,7 +398,7 @@ const selectedSeats = [];
 const container = document.getElementById("seats");
 
 const layout = {
-  A: [[23,21,19,17,15,"13w"],["11w","9w",7,5,3,1,2,4,6,8,10,12],[14,16,18,20,22,24]],
+  A: [[23,21,19,17,15,"13w"], ["", "11w","9w",7,5,3,1,2,4,6,8,10,12, ""], [14,16,18,20,22,24]],
   B: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
   C: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
   D: [[31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
@@ -640,9 +640,37 @@ if (window.innerWidth <= 768) {
   let lastDistance = null;
 
   function updateTransform() {
-    // Aplicamos a transformação
-    map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  const containerWidth = containerMap.clientWidth;
+  const containerHeight = containerMap.clientHeight;
+  const mapWidth = map.scrollWidth * scale;
+  const mapHeight = map.scrollHeight * scale;
+
+  // --- Limites Horizontais (Eixo X) ---
+  if (mapWidth <= containerWidth) {
+    // Se o mapa cabe todo na largura, mantemos centrado
+    posX = (containerWidth - mapWidth) / 2;
+  } else {
+    // Se o mapa é maior, limitamos o arrasto entre a borda esquerda (0) e a direita
+    const minX = containerWidth - mapWidth;
+    const maxX = 0;
+    if (posX < minX) posX = minX;
+    if (posX > maxX) posX = maxX;
   }
+
+  // --- Limites Verticais (Eixo Y) ---
+  if (mapHeight <= containerHeight) {
+    // Se o mapa cabe todo na altura, mantemos centrado
+    posY = (containerHeight - mapHeight) / 2;
+  } else {
+    // Limitamos o arrasto para não subir nem descer demais
+    const minY = containerHeight - mapHeight;
+    const maxY = 0;
+    if (posY < minY) posY = minY;
+    if (posY > maxY) posY = maxY;
+  }
+
+  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
 
   // Função crucial: Calcula o zoom e posição para o mapa aparecer TODO e CENTRADO
   function fitAndCenterMap() {
