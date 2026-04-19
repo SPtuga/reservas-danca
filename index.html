@@ -330,9 +330,26 @@ input::placeholder { color: #64748b; }
 
   </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
+  const connection = new signalR.HubConnectionBuilder()
+  .withUrl("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/negotiate")
+  .build();
 
+connection.start()
+  .then(() => console.log("SignalR ligado"))
+  .catch(err => console.error(err));
+connection.on("seatSelected", (seatId) => {
+
+  document.querySelectorAll(".seat").forEach(btn => {
+
+    if(btn.dataset.id === seatId){
+      btn.classList.add("occupied");
+    }
+
+  });
+
+});
 const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
 const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
 let temErroOrfaos = false;
@@ -529,6 +546,11 @@ layout[row].forEach((section, i) => {
           }
 
           updateUI();
+          fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/negotiate", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ seat: seatId })
+});
         };
 
         sec.appendChild(btn);
