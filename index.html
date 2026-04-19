@@ -489,7 +489,7 @@ function render() {
 layout[row].forEach((section, i) => {
 
   // corredor DEPOIS da secção 0 e da secção 1
-  if(i === 1 || i === 2) {
+  if(i > 0){
     const aisle = document.createElement("div");
     rowDiv.appendChild(aisle);
   }
@@ -631,6 +631,7 @@ if (window.innerWidth <= 768) {
   const containerMap = document.getElementById("map-container");
 
   let scale = 1;
+  let minScale = 1;
   let posX = 0;
   let posY = 0;
 
@@ -666,21 +667,23 @@ if (window.innerWidth <= 768) {
     map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
-  function centerMap() {
-    const containerWidth = containerMap.clientWidth;
-    const mapWidth = map.scrollWidth * scale;
+function centerMap() {
+  const containerWidth = containerMap.clientWidth;
+  const mapWidth = map.scrollWidth * scale;
 
-    posX = (containerWidth - mapWidth) / 2;
-    posY = 10;
+  posX = (containerWidth - mapWidth) / 2;
+  posY = 10;
 
-    updateTransform();
-  }
-
+  updateTransform();
+}
+minScale = containerMap.clientWidth / map.scrollWidth;
+scale = minScale;
   // 👉 inicialização correta
-  setTimeout(() => {
-    calculateInitialScale();
-    centerMap();
-  }, 100);
+setTimeout(() => {
+  minScale = containerMap.clientWidth / map.scrollWidth;
+  scale = minScale;
+  centerMap();
+}, 100);
 
   containerMap.addEventListener("touchstart", e => {
     if (e.touches.length === 1) {
@@ -717,7 +720,7 @@ if (window.innerWidth <= 768) {
       return;
     }
 
-    if (isDragging && e.touches.length === 1 && scale > 1) {
+    if (isDragging && e.touches.length === 1 && scale > minScale) {
       posX = e.touches[0].clientX - startX;
       posY = e.touches[0].clientY - startY;
       updateTransform();
