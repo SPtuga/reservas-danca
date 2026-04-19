@@ -229,7 +229,6 @@ input::placeholder { color: #64748b; }
 
   .left {
   padding: 12px 4px 16px;
-  overflow-x: auto; /*
   -webkit-overflow-scrolling: touch;
   }
 
@@ -245,11 +244,6 @@ input::placeholder { color: #64748b; }
     border-top: 1px solid #1e293b;
     padding: 16px;
   }
-}
-#map-container {
-  width: 100%;
-  overflow: auto;
-  touch-action: pan-x pan-y;
 }
 
 #map-wrapper {
@@ -271,6 +265,37 @@ input::placeholder { color: #64748b; }
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
+}
+#map-container {
+  width: 100%;
+  position: relative;
+}
+
+/* MOBILE ONLY */
+@media (max-width: 768px) {
+  #map-container {
+    height: 70vh;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  #map-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+  }
+}
+
+#map-container:active {
+  cursor: grabbing;
+}
+
+#map-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
 }
 </style>
 </head>
@@ -445,7 +470,7 @@ async function carregarLugares() {
   });
 
   updateUI();
-  scaleMapa();
+  //scaleMapa();
 }
 
 function render() {
@@ -606,6 +631,71 @@ async function reservar() {
 
 carregarLugares();
 setInterval(carregarLugares, 10000);
+if (window.innerWidth <= 768) {
+
+  const map = document.getElementById("map-wrapper");
+  const containerMap = document.getElementById("map-container");
+
+  let scale = 0.6;
+  let posX = 0;
+  let posY = 0;
+
+  let startX = 0;
+  let startY = 0;
+  let isDragging = false;
+  let lastDistance = null;
+
+  function updateTransform() {
+    map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  }
+
+  updateTransform();
+
+  // DRAG
+  containerMap.addEventListener("touchstart", e => {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      startX = e.touches[0].clientX - posX;
+      startY = e.touches[0].clientY - posY;
+    }
+  });
+
+  containerMap.addEventListener("touchmove", e => {
+
+    if (e.touches.length === 2) {
+
+      let dx = e.touches[0].clientX - e.touches[1].clientX;
+      let dy = e.touches[0].clientY - e.touches[1].clientY;
+
+      let distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (!lastDistance) lastDistance = distance;
+
+      let delta = distance - lastDistance;
+
+      scale += delta * 0.002;
+      scale = Math.max(0.4, Math.min(2, scale));
+
+      lastDistance = distance;
+
+      updateTransform();
+      return;
+    }
+
+    if (isDragging && e.touches.length === 1) {
+      posX = e.touches[0].clientX - startX;
+      posY = e.touches[0].clientY - startY;
+      updateTransform();
+    }
+
+  });
+
+  containerMap.addEventListener("touchend", () => {
+    isDragging = false;
+    lastDistance = null;
+  });
+
+}
 
 </script>
 </body>
