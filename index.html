@@ -42,7 +42,7 @@ h2 {
   margin: 0 auto 14px;
   padding: 8px 16px;
   width: fit-content;
-  min-width: 700px;
+  min-width: unset;
   border-radius: 10px;
   font-weight: bold;
   font-size: 14px;
@@ -630,7 +630,7 @@ if (window.innerWidth <= 768) {
   const map = document.getElementById("map-wrapper");
   const containerMap = document.getElementById("map-container");
 
-  let scale = window.innerWidth < 768 ? 0.8 : 1;
+  let scale = 1;
   let posX = 0;
   let posY = 0;
 
@@ -639,50 +639,49 @@ if (window.innerWidth <= 768) {
   let isDragging = false;
   let lastDistance = null;
 
-function updateTransform() {
+  function calculateInitialScale() {
+    const containerWidth = containerMap.clientWidth;
+    const mapWidth = map.scrollWidth;
 
-  const containerRect = containerMap.getBoundingClientRect();
-
-  const mapWidth = map.scrollWidth * scale;
-  const mapHeight = map.scrollHeight * scale;
-
-  let maxX = 0;
-  let minX = containerRect.width - mapWidth;
-
-  let maxY = 0;
-  let minY = containerRect.height - mapHeight;
-
-  // 👉 se o mapa for menor que o container → centra e bloqueia
-  if (mapWidth <= containerRect.width) {
-    posX = (containerRect.width - mapWidth) / 2;
-  } else {
-    posX = Math.min(maxX, Math.max(minX, posX));
+    scale = Math.min(1, containerWidth / mapWidth);
   }
 
-  if (mapHeight <= containerRect.height) {
-    posY = 20;
-  } else {
-    posY = Math.min(maxY, Math.max(minY, posY));
+  function updateTransform() {
+
+    const containerWidth = containerMap.clientWidth;
+    const containerHeight = containerMap.clientHeight;
+
+    const mapWidth = map.scrollWidth * scale;
+    const mapHeight = map.scrollHeight * scale;
+
+    const minX = Math.min(0, containerWidth - mapWidth);
+    const maxX = 0;
+
+    const minY = Math.min(0, containerHeight - mapHeight);
+    const maxY = 0;
+
+    posX = Math.max(minX, Math.min(maxX, posX));
+    posY = Math.max(minY, Math.min(maxY, posY));
+
+    map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
-  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-}
+  function centerMap() {
+    const containerWidth = containerMap.clientWidth;
+    const mapWidth = map.scrollWidth * scale;
 
- updateTransform();
-setTimeout(centerMap, 100);
-function centerMap() {
-  const containerRect = containerMap.getBoundingClientRect();
+    posX = (containerWidth - mapWidth) / 2;
+    posY = 10;
 
-  const mapWidth = map.scrollWidth * scale;
-  const mapHeight = map.scrollHeight * scale;
+    updateTransform();
+  }
 
-  posX = (containerRect.width - mapWidth) / 2;
-  posY = 20;
+  // 👉 inicialização correta
+  setTimeout(() => {
+    calculateInitialScale();
+    centerMap();
+  }, 100);
 
-  updateTransform();
-}
-
-  // DRAG
   containerMap.addEventListener("touchstart", e => {
     if (e.touches.length === 1) {
       isDragging = true;
@@ -692,6 +691,8 @@ function centerMap() {
   });
 
   containerMap.addEventListener("touchmove", e => {
+
+    e.preventDefault();
 
     if (e.touches.length === 2) {
 
@@ -705,7 +706,10 @@ function centerMap() {
       let delta = distance - lastDistance;
 
       scale += delta * 0.002;
-      scale = Math.max(0.4, Math.min(2, scale));
+
+      const minScale = containerMap.clientWidth / map.scrollWidth;
+
+      scale = Math.max(minScale, Math.min(2, scale));
 
       lastDistance = distance;
 
@@ -719,7 +723,7 @@ function centerMap() {
       updateTransform();
     }
 
-  });
+  }, { passive: false });
 
   containerMap.addEventListener("touchend", () => {
     isDragging = false;
