@@ -270,7 +270,7 @@ input::placeholder { color: #64748b; }
   #map-container {
     height: 55vh;
     overflow: hidden;
-    touch-action: none;
+    touch-action: pan-x pan-y;
   }
 
   #map-wrapper {
@@ -676,8 +676,6 @@ function centerMap() {
 
   updateTransform();
 }
-minScale = containerMap.clientWidth / map.scrollWidth;
-scale = minScale;
   // 👉 inicialização correta
 setTimeout(() => {
   minScale = containerMap.clientWidth / map.scrollWidth;
@@ -695,7 +693,9 @@ setTimeout(() => {
 
   containerMap.addEventListener("touchmove", e => {
 
-    e.preventDefault();
+    if (e.touches.length === 2) {
+  e.preventDefault(); // só no pinch
+}
 
     if (e.touches.length === 2) {
 
@@ -710,9 +710,7 @@ setTimeout(() => {
 
       scale += delta * 0.002;
 
-      const minScale = containerMap.clientWidth / map.scrollWidth;
-
-      scale = Math.max(minScale, Math.min(2, scale));
+scale = Math.max(minScale, Math.min(2, scale));
 
       lastDistance = distance;
 
