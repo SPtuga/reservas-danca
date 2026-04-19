@@ -332,8 +332,8 @@ input::placeholder { color: #64748b; }
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
-  const connection = new signalR.HubConnectionBuilder()
-  .withUrl("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/negotiate")
+const connection = new signalR.HubConnectionBuilder()
+  .withUrl("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api")
   .build();
 
 connection.start()
@@ -546,7 +546,7 @@ layout[row].forEach((section, i) => {
           }
 
           updateUI();
-          fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/negotiate", {
+          fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ seat: seatId })
