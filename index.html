@@ -261,6 +261,16 @@ input::placeholder { color: #64748b; }
 #seats {
   display: inline-block;
 }
+.seat.temp {
+  background: #fbbf24; /* amarelo */
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
 </style>
 </head>
 <body>
@@ -344,7 +354,17 @@ connection.on("seatSelected", (seatId) => {
   document.querySelectorAll(".seat").forEach(btn => {
 
     if(btn.dataset.id === seatId){
-      btn.classList.add("occupied");
+
+      // não mexe se já estiver ocupado real
+      if(btn.classList.contains("occupied")) return;
+
+      btn.classList.add("temp");
+
+      // remove após 5 segundos
+      setTimeout(() => {
+        btn.classList.remove("temp");
+      }, 5000);
+
     }
 
   });
