@@ -274,7 +274,7 @@ input::placeholder { color: #64748b; }
 /* MOBILE ONLY */
 @media (max-width: 768px) {
   #map-container {
-    height: 70vh;
+    height: 55vh;
     overflow: hidden;
     touch-action: none;
   }
@@ -636,7 +636,7 @@ if (window.innerWidth <= 768) {
   const map = document.getElementById("map-wrapper");
   const containerMap = document.getElementById("map-container");
 
-  let scale = 0.6;
+  let scale = window.innerWidth < 768 ? 0.8 : 1;
   let posX = 0;
   let posY = 0;
 
@@ -649,7 +649,22 @@ if (window.innerWidth <= 768) {
     map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
+ updateTransform();
+setTimeout(centerMap, 100);
+  function centerMap() {
+  const rect = map.getBoundingClientRect();
+  const containerRect = containerMap.getBoundingClientRect();
+
+  posX = (containerRect.width - rect.width * scale) / 2;
+  posY = 20; // margem do topo
+  posX = Math.min(posX, 200);
+posX = Math.max(posX, -1000);
+
+posY = Math.min(posY, 200);
+posY = Math.max(posY, -800);
+
   updateTransform();
+}
 
   // DRAG
   containerMap.addEventListener("touchstart", e => {
