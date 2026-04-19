@@ -42,7 +42,7 @@ h2 {
   margin: 0 auto 14px;
   padding: 8px 16px;
   width: fit-content;
-  min-width: 200px;
+  min-width: 700px;
   border-radius: 10px;
   font-weight: bold;
   font-size: 14px;
@@ -670,12 +670,14 @@ function updateTransform() {
 
  updateTransform();
 setTimeout(centerMap, 100);
-  function centerMap() {
-  const rect = map.getBoundingClientRect();
+function centerMap() {
   const containerRect = containerMap.getBoundingClientRect();
 
-  posX = (containerRect.width - rect.width * scale) / 2;
-  posY = 20; // margem do topo
+  const mapWidth = map.scrollWidth * scale;
+  const mapHeight = map.scrollHeight * scale;
+
+  posX = (containerRect.width - mapWidth) / 2;
+  posY = 20;
 
   updateTransform();
 }
