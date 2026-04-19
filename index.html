@@ -297,14 +297,23 @@ input::placeholder { color: #64748b; }
 /* Estilo da Dica Mobile */
 #pinch-hint {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 100;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6); /* Um pouco mais escuro para ler melhor */
+  z-index: 1000; /* Aumentado para garantir que fica por cima de tudo */
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; /* Deixa os toques passarem para o mapa */
+  pointer-events: none; 
   transition: opacity 0.5s ease;
+  opacity: 1; /* Estado inicial visível */
+}
+
+/* Garante que o fade-out funciona */
+#pinch-hint.fade-out {
+  opacity: 0;
 }
 
 /* Esconder em Desktop por defeito */
@@ -349,6 +358,7 @@ input::placeholder { color: #64748b; }
 
 #pinch-hint.fade-out {
   opacity: 0;
+  pointer-events: none;
 }
 </style>
 </head>
@@ -705,26 +715,12 @@ carregarLugares();
 setInterval(carregarLugares, 10000);
 // Apenas para Mobile
 if (window.innerWidth <= 768) {
-  // Dentro do seu script mobile:
-const hint = document.getElementById("pinch-hint");
-
-function hideHint() {
-  if (hint) {
-    hint.classList.add("fade-out");
-    setTimeout(() => hint.remove(), 500); // Remove do código após o fade
-    // Removemos os listeners para não sobrecarregar
-    containerMap.removeEventListener("touchstart", hideHint);
-  }
-}
-
-// Quando o utilizador tocar no mapa pela primeira vez, a dica desaparece
-containerMap.addEventListener("touchstart", hideHint);
-
-// Opcional: Desaparecer sozinha após 4 segundos se ninguém tocar
-setTimeout(hideHint, 4000);
+  // 1. PRIMEIRO: Definir os elementos (essencial para não dar erro de inicialização)
   const map = document.getElementById("map-wrapper");
   const containerMap = document.getElementById("map-container");
+  const hint = document.getElementById("pinch-hint");
 
+  // 2. VARIÁVEIS DE ESTADO
   let scale = 1;
   let minScale = 0.5;
   let maxScale = 4.0;
@@ -734,71 +730,72 @@ setTimeout(hideHint, 4000);
   let startX = 0, startY = 0;
   let lastDistance = null;
 
+  // 3. LÓGICA DA DICA (Agora as variáveis acima já existem)
+  function fecharDica() {
+    if (hint && !hint.classList.contains("fade-out")) {
+      hint.classList.add("fade-out");
+      setTimeout(() => { if(hint.parentNode) hint.remove(); }, 500); 
+    }
+  }
+
+  // Ativar fecho por toque ou por tempo (4s)
+  if (containerMap) {
+    containerMap.addEventListener("touchstart", fecharDica, { passive: true });
+  }
+  setTimeout(fecharDica, 4000);
+
+  // 4. FUNÇÕES DE TRANSFORMAÇÃO
   function updateTransform() {
-  const containerWidth = containerMap.clientWidth;
-  const containerHeight = containerMap.clientHeight;
-  const mapWidth = map.scrollWidth * scale;
-  const mapHeight = map.scrollHeight * scale;
+    const containerWidth = containerMap.clientWidth;
+    const containerHeight = containerMap.clientHeight;
+    const mapWidth = map.scrollWidth * scale;
+    const mapHeight = map.scrollHeight * scale;
 
-  // --- Limites Horizontais (Eixo X) ---
-  if (mapWidth <= containerWidth) {
-    // Se o mapa cabe todo na largura, mantemos centrado
-    posX = (containerWidth - mapWidth) / 2;
-  } else {
-    // Se o mapa é maior, limitamos o arrasto entre a borda esquerda (0) e a direita
-    const minX = containerWidth - mapWidth;
-    const maxX = 0;
-    if (posX < minX) posX = minX;
-    if (posX > maxX) posX = maxX;
+    // Limites Horizontais (Eixo X)
+    if (mapWidth <= containerWidth) {
+      posX = (containerWidth - mapWidth) / 2;
+    } else {
+      const minX = containerWidth - mapWidth;
+      const maxX = 0;
+      if (posX < minX) posX = minX;
+      if (posX > maxX) posX = maxX;
+    }
+
+    // Limites Verticais (Eixo Y)
+    if (mapHeight <= containerHeight) {
+      posY = (containerHeight - mapHeight) / 2;
+    } else {
+      const minY = containerHeight - mapHeight;
+      const maxY = 0;
+      if (posY < minY) posY = minY;
+      if (posY > maxY) posY = maxY;
+    }
+
+    map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
   }
 
-  // --- Limites Verticais (Eixo Y) ---
-  if (mapHeight <= containerHeight) {
-    // Se o mapa cabe todo na altura, mantemos centrado
-    posY = (containerHeight - mapHeight) / 2;
-  } else {
-    // Limitamos o arrasto para não subir nem descer demais
-    const minY = containerHeight - mapHeight;
-    const maxY = 0;
-    if (posY < minY) posY = minY;
-    if (posY > maxY) posY = maxY;
-  }
-
-  map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-}
-
-  // Função crucial: Calcula o zoom e posição para o mapa aparecer TODO e CENTRADO
   function fitAndCenterMap() {
     const cw = containerMap.clientWidth;
     const ch = containerMap.clientHeight;
     const mw = map.scrollWidth;
     const mh = map.scrollHeight;
+    if (mw === 0 || mh === 0) return;
 
-    if (mw === 0 || mh === 0) return; // Segurança caso não tenha carregado ainda
-
-    // 1. Calcula a escala para caber na largura E altura (com margem de 5%)
     const scaleX = cw / mw;
     const scaleY = ch / mh;
     scale = Math.min(scaleX, scaleY) * 0.95; 
-    
-    // O minScale passa a ser este valor para o utilizador não "perder" o mapa
     minScale = scale * 0.8; 
 
-    // 2. Calcula a posição para centrar
     posX = (cw - mw * scale) / 2;
     posY = (ch - mh * scale) / 2;
-
     updateTransform();
   }
 
-  // AGUARDAR O MAPA ESTAR DESENHADO:
-  // Como os lugares vêm da API, tentamos centrar após um pequeno delay 
-  // e repetimos quando a função carregarLugares terminar
   setTimeout(fitAndCenterMap, 500);
 
-  // --- EVENTOS DE TOQUE ---
-
+  // 5. EVENTOS DE TOQUE
   containerMap.addEventListener("touchstart", e => {
+    // Nota: fecharDica() já é disparado aqui pelo listener acima
     if (e.touches.length === 1) {
       isDragging = true;
       startX = e.touches[0].clientX - posX;
@@ -809,7 +806,6 @@ setTimeout(hideHint, 4000);
   containerMap.addEventListener("touchmove", e => {
     e.preventDefault(); 
 
-    // PINCH TO ZOOM
     if (e.touches.length === 2) {
       let dx = e.touches[0].clientX - e.touches[1].clientX;
       let dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -821,13 +817,11 @@ setTimeout(hideHint, 4000);
       }
 
       let delta = distance - lastDistance;
-      let zoomFactor = 0.007; // Sensibilidade
+      let zoomFactor = 0.007; 
       let newScale = scale + delta * zoomFactor;
 
-      // Limites de zoom
       newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
-      // Ajuste de posição para o zoom ser no centro dos dedos
       const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
       const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       
@@ -840,7 +834,6 @@ setTimeout(hideHint, 4000);
       return;
     }
 
-    // ARRASTAR (PAN)
     if (isDragging && e.touches.length === 1) {
       posX = e.touches[0].clientX - startX;
       posY = e.touches[0].clientY - startY;
