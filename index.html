@@ -448,26 +448,18 @@ const connection = new signalR.HubConnectionBuilder()
 connection.start()
   .then(() => console.log("SignalR ligado"))
   .catch(err => console.error(err));
-connection.on("seatSelected", (seatId) => {
-
+connection.on("seatLocked", (seatId) => {
   document.querySelectorAll(".seat").forEach(btn => {
-
     if(btn.dataset.id === seatId){
-
-      // não mexe se já estiver ocupado real
       if(btn.classList.contains("occupied")) return;
 
       btn.classList.add("temp");
 
-      // remove após 5 segundos
       setTimeout(() => {
         btn.classList.remove("temp");
-      }, 20000);
-
+      }, 300000); // 5 min
     }
-
   });
-
 });
 const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
 const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
