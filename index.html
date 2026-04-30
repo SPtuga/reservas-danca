@@ -457,13 +457,12 @@ connection.on("seatLocked", (seatId) => {
 
       setTimeout(() => {
         btn.classList.remove("temp");
-      }, 300000); // 5 min
+      }, 15000); // 👈 15s (antes 5min)
     }
   });
 });
 const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
 const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
-const apiReleaseSeat = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/releaseSeat";
 let temErroOrfaos = false;
 let ocupados = [];
 const selectedSeats = [];
@@ -610,51 +609,28 @@ layout[row].forEach((section, i) => {
 
         if(ocupados.includes(seatId)) btn.classList.add("occupied");
 
-        btn.onclick = async () => {
+        btn.onclick = () => {
 
   if(btn.classList.contains("occupied")) return;
 
-  // 🚫 não deixa clicar se estiver locked (amarelo)
-  if(btn.classList.contains("temp")) {
-    alert("Este lugar está temporariamente reservado.");
-    return;
-  }
-
   const idx = selectedSeats.indexOf(seatId);
 
-  // 🔴 DESMARCAR → libertar lock
   if(idx > -1) {
-
     selectedSeats.splice(idx, 1);
     btn.classList.remove("selected");
-
-    await fetch(apiReleaseSeat, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ seat: seatId })
-    });
-
-  } 
-  // 🟢 MARCAR → tentar lock
-  else {
-
-    const res = await fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ seat: seatId })
-    });
-
-    if(!res.ok) {
-      const msg = await res.text();
-      alert(msg);
-      return;
-    }
-
+  } else {
     selectedSeats.push(seatId);
     btn.classList.add("selected");
+
+    // 🔔 apenas feedback visual (SignalR)
+    fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seat: seatId })
+    });
   }
 
-  // 🔍 validação órfãos (mantém igual)
+  // 🔍 validação órfãos (fica igual)
   let total = 0, ocup = 0;
   for(const r in layout) {
     if(r === "BREAK") continue;
@@ -717,13 +693,30 @@ async function reservar() {
   if(!aluno || !nome || !email || !telefone) { alert("Preencha todos os campos!"); return; }
   if(selectedSeats.length === 0)             { alert("Escolha pelo menos um lugar!"); return; }
 
-  await fetch(apiReservar, {
-    method:  "POST",
-    headers: {"Content-Type": "application/json"},
-    body:    JSON.stringify({ title: aluno, nome, email, telefone, lugares: selectedSeats.join(",") })
-  });
+  const response = await fetch(apiReservar, {
+  method:  "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({ 
+    title: aluno, 
+    nome, 
+    email, 
+    telefone, 
+    lugares: selectedSeats.join(",") 
+  })
+});
 
-  alert("Reserva feita!");
+if(!response.ok){
+  const error = await response.text();
+
+  alert(error);
+
+  // 🔥 refresh imediato do mapa
+  carregarLugares();
+
+  return;
+}
+
+alert("Reserva feita!");
   selectedSeats.length = 0;
   ["aluno","nome","email","telefone"].forEach(id => document.getElementById(id).value = "");
   updateUI();
