@@ -463,6 +463,7 @@ connection.on("seatLocked", (seatId) => {
 });
 const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
 const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
+const apiReleaseSeat = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/releaseSeat";
 let temErroOrfaos = false;
 let ocupados = [];
 const selectedSeats = [];
@@ -609,55 +610,82 @@ layout[row].forEach((section, i) => {
 
         if(ocupados.includes(seatId)) btn.classList.add("occupied");
 
-        btn.onclick = () => {
-          if(btn.classList.contains("occupied")) return;
+        btn.onclick = async () => {
 
-          const idx = selectedSeats.indexOf(seatId);
-          if(idx > -1) {
-            selectedSeats.splice(idx, 1);
-            btn.classList.remove("selected");
-          } else {
-            selectedSeats.push(seatId);
-            btn.classList.add("selected");
-          }
+  if(btn.classList.contains("occupied")) return;
 
-          // validação órfãos
-          let total = 0, ocup = 0;
-          for(const r in layout) {
-            if(r === "BREAK") continue;
-            layout[r].forEach(sec => {
-              if(sec === "tech") return;
-              sec.forEach(s => {
-                const n = typeof s === "string" ? s.replace("w","") : s;
-                total++;
-                if(ocupados.includes(r+n) || selectedSeats.includes(r+n)) ocup++;
-              });
-            });
-          }
+  // 🚫 não deixa clicar se estiver locked (amarelo)
+  if(btn.classList.contains("temp")) {
+    alert("Este lugar está temporariamente reservado.");
+    return;
+  }
 
-          temErroOrfaos = false;
-          if(ocup / total < 0.7) {
-            for(const r in layout) {
-              if(r === "BREAK") continue;
-              const fila = [];
-              layout[r].forEach(sec => {
-                if(sec === "tech") return;
-                sec.forEach(s => fila.push(r + (typeof s==="string" ? s.replace("w","") : s)));
-              });
-              const estado = fila.map(s => ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0);
-              for(let i = 1; i < estado.length - 1; i++) {
-                if(estado[i]===0 && estado[i-1]===1 && estado[i+1]===1) temErroOrfaos = true;
-              }
-            }
-          }
+  const idx = selectedSeats.indexOf(seatId);
 
-          updateUI();
-          fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ seat: seatId })
-});
-        };
+  // 🔴 DESMARCAR → libertar lock
+  if(idx > -1) {
+
+    selectedSeats.splice(idx, 1);
+    btn.classList.remove("selected");
+
+    await fetch(apiReleaseSeat, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seat: seatId })
+    });
+
+  } 
+  // 🟢 MARCAR → tentar lock
+  else {
+
+    const res = await fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seat: seatId })
+    });
+
+    if(!res.ok) {
+      const msg = await res.text();
+      alert(msg);
+      return;
+    }
+
+    selectedSeats.push(seatId);
+    btn.classList.add("selected");
+  }
+
+  // 🔍 validação órfãos (mantém igual)
+  let total = 0, ocup = 0;
+  for(const r in layout) {
+    if(r === "BREAK") continue;
+    layout[r].forEach(sec => {
+      if(sec === "tech") return;
+      sec.forEach(s => {
+        const n = typeof s === "string" ? s.replace("w","") : s;
+        total++;
+        if(ocupados.includes(r+n) || selectedSeats.includes(r+n)) ocup++;
+      });
+    });
+  }
+
+  temErroOrfaos = false;
+  if(ocup / total < 0.7) {
+    for(const r in layout) {
+      if(r === "BREAK") continue;
+      const fila = [];
+      layout[r].forEach(sec => {
+        if(sec === "tech") return;
+        sec.forEach(s => fila.push(r + (typeof s==="string" ? s.replace("w","") : s)));
+      });
+      const estado = fila.map(s => ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0);
+      for(let i = 1; i < estado.length - 1; i++) {
+        if(estado[i]===0 && estado[i-1]===1 && estado[i+1]===1) temErroOrfaos = true;
+      }
+    }
+  }
+
+  updateUI();
+};
 
         sec.appendChild(btn);
       });
