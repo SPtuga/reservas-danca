@@ -95,7 +95,7 @@
 
         .seat.wheelchair            { background: #f59e0b; font-size: 13px; }
         .seat.wheelchair.selected   { background: #2563eb; }
-        .seat.wheelchair.occupied   { background: #dc2626; }
+        .seat.wheelchair.occupied   { background: #f59e0b; }
 
         .tech {
             background: #333;
@@ -393,7 +393,7 @@
     justify-content: center;
     min-width: 60px; /* 👈 mais largura (resolve sobreposição) */
     height: 100%;
-    color: #22c55e;
+    color: #ffffff;
     font-weight: bold;
     user-select: none;
 }
@@ -457,7 +457,7 @@
             <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
             <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Selecionado</div>
             <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Ocupado</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Cadeira de rodas</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Cadeira de rodas</div>
         </div>
 
         <div class="counter">
@@ -678,9 +678,12 @@ if(i > 0){
                     btn.title        = "Lugar " + seatId;
 
                     if(isWheel) {
-                        btn.classList.add("wheelchair");
-                        btn.innerHTML = "♿";
-                    } else {
+  btn.classList.add("wheelchair");
+  btn.innerHTML = "♿";
+
+  // 👇 label explicativa
+  btn.title = "Contactar receção para obter lugar";
+} else {
                         btn.innerText = num;
                     }
 
