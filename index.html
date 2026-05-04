@@ -602,37 +602,50 @@
                             });
                         }
 
-                        // 🔍 validação órfãos (fica igual)
-                        let total = 0, ocup = 0;
-                        for(const r in layout) {
-                            if(r === "BREAK") continue;
-                            layout[r].forEach(sec => {
-                                if(sec === "tech") return;
-                                sec.forEach(s => {
-                                    const n = typeof s === "string" ? s.replace("w","") : s;
-                                    total++;
-                                    if(ocupados.includes(r+n) || selectedSeats.includes(r+n)) ocup++;
-                                });
-                            });
-                        }
+                        // 🔍 validação órfãos (CORRIGIDA)
+let total = 0, ocup = 0;
+for (const r in layout) {
+    if (r === "BREAK") continue;
+    layout[r].forEach(sec => {
+        if (sec === "tech") return;
+        sec.forEach(s => {
+            if (s === "") return; // Ignora espaços vazios
+            const n = typeof s === "string" ? s.replace("w", "") : s;
+            total++;
+            if (ocupados.includes(r + n) || selectedSeats.includes(r + n)) ocup++;
+        });
+    });
+}
 
-                        temErroOrfaos = false;
-                        if(ocup / total < 0.7) {
-                            for(const r in layout) {
-                                if(r === "BREAK") continue;
-                                const fila = [];
-                                layout[r].forEach(sec => {
-                                    if(sec === "tech") return;
-                                    sec.forEach(s => fila.push(r + (typeof s==="string" ? s.replace("w","") : s)));
-                                });
-                                const estado = fila.map(s => ocupados.includes(s) || selectedSeats.includes(s) ? 1 : 0);
-                                for(let i = 1; i < estado.length - 1; i++) {
-                                    if(estado[i]===0 && estado[i-1]===1 && estado[i+1]===1) temErroOrfaos = true;
-                                }
-                            }
-                        }
+temErroOrfaos = false;
+// Só valida se a ocupação for menor que 70% (conforme a tua regra original)
+if (ocup / total < 0.7) {
+    for (const r in layout) {
+        if (r === "BREAK") continue;
 
-                        updateUI();
+        // Validamos cada secção (bloco) INDEPENDENTEMENTE
+        layout[r].forEach(sec => {
+            if (sec === "tech") return;
+
+            // Criamos o estado apenas desta secção/bloco
+            const filaBloco = sec
+                .filter(s => s !== "") // Remove espaços vazios do cálculo de vizinhança
+                .map(s => {
+                    const id = r + (typeof s === "string" ? s.replace("w", "") : s);
+                    return (ocupados.includes(id) || selectedSeats.includes(id)) ? 1 : 0;
+                });
+
+            // Verifica órfãos apenas dentro deste bloco
+            for (let i = 1; i < filaBloco.length - 1; i++) {
+                if (filaBloco[i] === 0 && filaBloco[i - 1] === 1 && filaBloco[i + 1] === 1) {
+                    temErroOrfaos = true;
+                }
+            }
+        });
+    }
+}
+
+updateUI();
                     };
 
                     sec.appendChild(btn);
