@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=4.0">
-    <title>Reserva - Ateneu Artístico Vilafranquense</title>
+    <title>Reserva</title>
     <style>
         * { box-sizing: border-box; }
 
@@ -19,7 +19,7 @@
         .main {
             display: flex;
             flex-direction: row;
-            min-height: 100vh;
+            min-height: 10vh;
         }
 
         /* ── LADO ESQUERDO (mapa) ── */
@@ -28,7 +28,7 @@
             min-width: 0;
             padding: 16px 8px 32px;
             text-align: center;
-            overflow: hidden;
+            overflow: hidden; /* remove scroll desktop */
         }
 
         h2 {
@@ -93,9 +93,9 @@
         .seat.selected  { background: #2563eb; }
         .seat.occupied  { background: #dc2626; cursor: not-allowed; }
 
-        .seat.wheelchair { background: #f59e0b; font-size: 13px; }
-        .seat.wheelchair.selected { background: #2563eb; }
-        .seat.wheelchair.occupied { background: #dc2626; }
+        .seat.wheelchair            { background: #f59e0b; font-size: 13px; }
+        .seat.wheelchair.selected   { background: #2563eb; }
+        .seat.wheelchair.occupied   { background: #dc2626; }
 
         .tech {
             background: #333;
@@ -133,6 +133,7 @@
         }
 
         .legend-item { display: flex; align-items: center; gap: 5px; }
+
         .legend-dot {
             width: 14px;
             height: 14px;
@@ -195,7 +196,12 @@
             line-height: 1.5;
         }
 
-        .info-box ul { padding-left: 16px; margin: 8px 0 0; }
+        .info-box ul {
+            padding-left: 16px;
+            margin: 8px 0 0;
+        }
+
+        .info-box ul li { margin-bottom: 4px; }
 
         .planta-link {
             color: #60a5fa;
@@ -211,37 +217,50 @@
         #plantaBox { display: none; margin-top: 6px; }
         #plantaBox img { width: 100%; border-radius: 8px; }
 
-        /* ── NOTIFICAÇÕES ── */
-        .toast-success {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: #10b981;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            z-index: 9999;
-            text-align: center;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .main { flex-direction: column; }
+            .left {
+                padding: 12px 4px 16px;
+                -webkit-overflow-scrolling: touch;
+            }
+            h2 { font-size: 15px; }
+            .right {
+                width: 100%;
+                min-width: unset;
+                border-left: none;
+                border-top: 1px solid #1e293b;
+                padding: 16px;
+            }
         }
 
-        .toast-success.show { transform: translateX(-50%) translateY(0); }
+        #seats {
+            display: inline-block;
+            margin: 0 auto;
+        }
 
-        /* ── MOBILE ADAPTATIONS ── */
+        .seat.temp {
+            background: #fbbf24; /* amarelo */
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        #map-container {
+            width: 100%;
+            position: relative;
+        }
+
+        /* MOBILE ONLY */
         @media (max-width: 768px) {
-          #pinch-hint { display: flex; }
-            .main { flex-direction: column; }
-            .left { padding: 12px 4px 16px; }
             #map-container {
-                width: 100%;
                 height: 55vh;
-                position: relative;
                 overflow: hidden;
                 touch-action: none;
-                background: #020617;
             }
             #map-wrapper {
                 position: absolute;
@@ -249,51 +268,136 @@
                 left: 0;
                 transform-origin: 0 0;
             }
-            .right {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid #1e293b;
-                padding: 16px;
-            }
         }
 
-        #seats { display: inline-block; margin: 0 auto; }
+        #map-container:active { cursor: grabbing; }
+
+        #map-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+        }
 
         /* Estilo da Dica Mobile */
-#pinch-hint {
-    display: none; /* Escondido por defeito no PC */
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; 
-    transition: opacity 0.5s ease;
+        #pinch-hint {
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; 
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        #pinch-hint.fade-out { opacity: 0; pointer-events: none; }
+
+        @media (min-width: 769px) {
+            #pinch-hint { display: none; }
+        }
+
+        .hint-content {
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .finger-icon {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+        }
+
+        .finger {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .f1 { top: 0; left: 0; animation: pinch1 2s infinite; }
+        .f2 { bottom: 0; right: 0; animation: pinch2 2s infinite; }
+
+        @keyframes pinch1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(15px, 15px); }
+        }
+
+        @keyframes pinch2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-15px, -15px); }
+        }
+        /* Estilo da Notificação de Sucesso */
+.toast-success {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: #10b981; /* Verde esmeralda */
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    text-align: center;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
-        #pinch-hint.fade-out { opacity: 0; }
-        .hint-content { text-align: center; color: white; }
+
+.toast-success.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-success b {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.toast-success p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
     </style>
 </head>
 <body>
 
 <div class="main">
+
+    <!-- MAPA -->
     <div class="left">
         <h2>Reserva de Lugares — Ateneu Artístico Vilafranquense</h2>
         <div class="stage">P A L C O</div>
         <div id="map-container">
             <div id="pinch-hint">
                 <div class="hint-content">
+                    <div class="finger-icon">
+                        <span class="finger f1"></span>
+                        <span class="finger f2"></span>
+                    </div>
                     <p>Use dois dedos para zoom e arraste para mover</p>
                 </div>
             </div>
+            
             <div id="map-wrapper">
                 <div id="seats"></div>
             </div>
         </div>
     </div>
 
+    <!-- PAINEL -->
     <div class="right">
+
         <div class="logo-wrap">
             <img src="LOGO_ACADEMIA_branco.png" alt="Logo">
         </div>
@@ -302,7 +406,7 @@
             <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
             <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Selecionado</div>
             <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Ocupado</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Cadeira de rodas</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Cadeira de rodas</div>
         </div>
 
         <div class="counter">
@@ -311,9 +415,9 @@
         </div>
 
         <div class="form-group">
-            <input id="aluno" placeholder="Nome do Aluno">
-            <input id="nome" placeholder="Nome do Responsável">
-            <input id="email" placeholder="Email" type="email">
+            <input id="aluno"    placeholder="Nome do Aluno">
+            <input id="nome"     placeholder="Nome do Responsável">
+            <input id="email"    placeholder="Email" type="email">
             <input id="telefone" placeholder="Telefone" type="tel">
         </div>
 
@@ -321,26 +425,59 @@
 
         <div class="info-box">
             <b>Bilhete único — 8€</b><br>
-            Válida por 48h — depois os lugares são libertados.
+            Cada espectador ocupa um lugar e paga o mesmo valor.<br>
+            Crianças até 3 anos ao colo não pagam.
+            <br><br>
+            <b>Condições:</b>
             <ul>
                 <li>Lugares numerados, escolhidos no mapa.</li>
                 <li>Reserva confirmada só após pagamento.</li>
+                <li>Válida por 48h — depois os lugares são libertados.</li>
+                <li>Bilhetes não reembolsáveis após pagamento.</li>
+                <li>Recomenda-se chegada antecipada.</li>
+                <li>Após início, entrada pode ser condicionada.</li>
+                <li>A organização pode alterar condições por imprevistos.</li>
             </ul>
         </div>
 
         <button class="planta-link" onclick="togglePlanta()">Ver Planta da Sala</button>
-        <div id="plantaBox"><img src="planta.jpg" alt="Planta"></div>
+        <div id="plantaBox">
+            <img src="planta.jpg" alt="Planta da sala">
+        </div>
+
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
-    // --- 1. CONFIGURAÇÕES ---
-    const apiBase = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api";
-    const apiReservar = `${apiBase}/Reservar`;
-    const apiLugares = `${apiBase}/ObterLugares`;
-    const apiSelect = `${apiBase}/selectSeat`;
-    const apiRelease = `${apiBase}/releaseSeat`;
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api")
+        .build();
+
+    connection.start()
+        .then(() => console.log("SignalR ligado"))
+        .catch(err => console.error(err));
+
+    connection.on("seatLocked", (seatId) => {
+        document.querySelectorAll(".seat").forEach(btn => {
+            if(btn.dataset.id === seatId){
+                if(btn.classList.contains("occupied")) return;
+
+                btn.classList.add("temp");
+
+                setTimeout(() => {
+                    btn.classList.remove("temp");
+                }, 15000); // 👈 15s (antes 5min)
+            }
+        });
+    });
+
+    const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
+    const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
+    let temErroOrfaos = false;
+    let ocupados = [];
+    const selectedSeats = [];
+    const container = document.getElementById("seats");
 
     const layout = {
         A: [[23,21,19,17,15,"13w"], ["", "11w","9w",7,5,3,1,2,4,6,8,10,12, ""], [14,16,18,20,22,24]],
@@ -366,70 +503,9 @@
         T: [[11],"tech",[12,14]]
     };
 
-    let ocupados = [];
-    const selectedSeats = [];
-    let temErroOrfaos = false;
-    const container = document.getElementById("seats");
-
-    // --- 2. SIGNALR ---
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl(apiBase)
-        .withAutomaticReconnect()
-        .build();
-
-    connection.on("seatStatusUpdated", (seatId, status) => {
-        if (status === "occupied") {
-            if (!ocupados.includes(seatId)) ocupados.push(seatId);
-            const idx = selectedSeats.indexOf(seatId);
-            if (idx > -1) selectedSeats.splice(idx, 1);
-        } else {
-            ocupados = ocupados.filter(s => s !== seatId);
-        }
-        renderizarEstadoBotoes();
-        updateUI();
-    });
-
-    connection.start().catch(err => console.error("SignalR Erro:", err));
-
-    // --- 3. LÓGICA CORE ---
-    async function handleSeatClick(btn, seatId) {
-        if (btn.classList.contains("occupied")) return;
-
-        const isSelected = selectedSeats.includes(seatId);
-
-        if (isSelected) {
-            selectedSeats.splice(selectedSeats.indexOf(seatId), 1);
-            btn.classList.remove("selected");
-            fetch(apiRelease, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ seat: seatId })
-            });
-        } else {
-            selectedSeats.push(seatId);
-            btn.classList.add("selected");
-            const res = await fetch(apiSelect, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ seat: seatId })
-            });
-            if (!res.ok) {
-                selectedSeats.splice(selectedSeats.indexOf(seatId), 1);
-                btn.classList.remove("selected");
-                alert("Lugar já não está disponível.");
-            }
-        }
-        validarOrfaos();
-        updateUI();
-    }
-
-    function renderizarEstadoBotoes() {
-        document.querySelectorAll(".seat").forEach(btn => {
-            const id = btn.dataset.id;
-            btn.classList.remove("occupied", "selected");
-            if (ocupados.includes(id)) btn.classList.add("occupied");
-            else if (selectedSeats.includes(id)) btn.classList.add("selected");
-        });
+    function togglePlanta() {
+        const el = document.getElementById("plantaBox");
+        el.style.display = el.style.display === "none" ? "block" : "none";
     }
 
     function updateUI() {
@@ -439,159 +515,387 @@
 
     async function carregarLugares() {
         try {
-            const res = await fetch(apiLugares);
+            const res  = await fetch(apiLugares);
+            if(!res.ok) throw new Error("HTTP " + res.status);
             const data = await res.json();
+
             ocupados = [];
-            if(data.value) {
+            if(data.value && Array.isArray(data.value)) {
                 data.value.forEach(i => {
-                    if(i.fields.Lugares) ocupados.push(...i.fields.Lugares.split(","));
+                    if(i.fields && i.fields.Lugares)
+                        ocupados.push(...i.fields.Lugares.split(","));
                 });
             }
-            if (container.innerHTML === "") render(); 
-            renderizarEstadoBotoes();
-            updateUI();
-        } catch(err) { console.error(err); }
+        } catch(err) {
+            console.error("Erro ao carregar lugares:", err);
+        }
+
+        const selectedAntes = [...selectedSeats];
+        container.innerHTML = "";
+        render();
+        selectedSeats.length = 0;
+
+        document.querySelectorAll(".seat").forEach(btn => {
+            const seatId = btn.dataset.id;
+            if(selectedAntes.includes(seatId) && !ocupados.includes(seatId)) {
+                btn.classList.add("selected");
+                selectedSeats.push(seatId);
+            }
+        });
+
+        updateUI();
     }
 
     function render() {
-        container.innerHTML = "";
         for(const row in layout) {
             if(row === "BREAK") {
                 const gap = document.createElement("div");
                 gap.className = "big-gap";
-                container.appendChild(gap); continue;
+                container.appendChild(gap);
+                continue;
             }
+
             const rowDiv = document.createElement("div");
             rowDiv.className = "row";
-            
+
+            // label esquerda
             const ll = document.createElement("div");
-            ll.className = "row-label"; ll.innerText = row;
+            ll.className = "row-label";
+            ll.innerText = row;
             rowDiv.appendChild(ll);
 
             layout[row].forEach((section, i) => {
-                if(i > 0) rowDiv.appendChild(document.createElement("div"));
+                // corredor DEPOIS da secção 0 e da secção 1
+                if(i > 0){
+                    const aisle = document.createElement("div");
+                    rowDiv.appendChild(aisle);
+                }
+
                 if(section === "tech") {
                     const tech = document.createElement("div");
-                    tech.className = "tech"; rowDiv.appendChild(tech); return;
+                    tech.className = "tech";
+                    rowDiv.appendChild(tech);
+                    return;
                 }
+
                 const sec = document.createElement("div");
                 sec.className = i === 0 ? "left-section" : i === 1 ? "center-section" : "right-section";
 
                 section.forEach(seat => {
+                    // 👉 NOVO: Se o lugar for vazio, desenha um espaço em vez de um botão
                     if (seat === "") {
                         const spacer = document.createElement("div");
-                        spacer.style.width = "26px"; spacer.style.margin = "2px";
-                        sec.appendChild(spacer); return;
+                        spacer.style.width = "26px";
+                        spacer.style.margin = "2px";
+                        sec.appendChild(spacer);
+                        return;
                     }
-                    let num = seat; let isWheel = false;
-                    if(typeof seat === "string" && seat.includes("w")) {
-                        num = seat.replace("w", ""); isWheel = true;
-                    }
-                    const seatId = row + num;
-                    const btn = document.createElement("button");
-                    btn.className = "seat"; btn.dataset.id = seatId;
-                    if(isWheel) { btn.classList.add("wheelchair"); btn.innerHTML = "♿"; }
-                    else { btn.innerText = num; }
 
-                    btn.onclick = () => handleSeatClick(btn, seatId);
+                    let num = seat;
+                    let isWheel = false;
+
+                    if(typeof seat === "string" && seat.includes("w")) {
+                        num     = seat.replace("w", "");
+                        isWheel = true;
+                    }
+
+                    const seatId = row + num;
+                    const btn    = document.createElement("button");
+                    btn.className    = "seat";
+                    btn.dataset.id   = seatId;
+                    btn.title        = "Lugar " + seatId;
+
+                    if(isWheel) {
+                        btn.classList.add("wheelchair");
+                        btn.innerHTML = "♿";
+                    } else {
+                        btn.innerText = num;
+                    }
+
+                    if(ocupados.includes(seatId)) btn.classList.add("occupied");
+
+                    btn.onclick = () => {
+                        if(btn.classList.contains("occupied")) return;
+
+                        const idx = selectedSeats.indexOf(seatId);
+
+                        if(idx > -1) {
+                            selectedSeats.splice(idx, 1);
+                            btn.classList.remove("selected");
+                        } else {
+                            selectedSeats.push(seatId);
+                            btn.classList.add("selected");
+
+                            // 🔔 apenas feedback visual (SignalR)
+                            fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ seat: seatId })
+                            });
+                        }
+
+                        // 🔍 validação órfãos (CORRIGIDA)
+let total = 0, ocup = 0;
+for (const r in layout) {
+    if (r === "BREAK") continue;
+    layout[r].forEach(sec => {
+        if (sec === "tech") return;
+        sec.forEach(s => {
+            if (s === "") return; // Ignora espaços vazios
+            const n = typeof s === "string" ? s.replace("w", "") : s;
+            total++;
+            if (ocupados.includes(r + n) || selectedSeats.includes(r + n)) ocup++;
+        });
+    });
+}
+
+temErroOrfaos = false;
+// Só valida se a ocupação for menor que 70% (conforme a tua regra original)
+if (ocup / total < 0.7) {
+    for (const r in layout) {
+        if (r === "BREAK") continue;
+
+        // Validamos cada secção (bloco) INDEPENDENTEMENTE
+        layout[r].forEach(sec => {
+            if (sec === "tech") return;
+
+            // Criamos o estado apenas desta secção/bloco
+            const filaBloco = sec
+                .filter(s => s !== "") // Remove espaços vazios do cálculo de vizinhança
+                .map(s => {
+                    const id = r + (typeof s === "string" ? s.replace("w", "") : s);
+                    return (ocupados.includes(id) || selectedSeats.includes(id)) ? 1 : 0;
+                });
+
+            // Verifica órfãos apenas dentro deste bloco
+            for (let i = 1; i < filaBloco.length - 1; i++) {
+                if (filaBloco[i] === 0 && filaBloco[i - 1] === 1 && filaBloco[i + 1] === 1) {
+                    temErroOrfaos = true;
+                }
+            }
+        });
+    }
+}
+
+updateUI();
+                    };
+
                     sec.appendChild(btn);
                 });
+
                 rowDiv.appendChild(sec);
             });
+
+            // label direita
             const rl = document.createElement("div");
-            rl.className = "row-label"; rl.innerText = row;
+            rl.className = "row-label";
+            rl.innerText = row;
             rowDiv.appendChild(rl);
+
             container.appendChild(rowDiv);
         }
     }
 
-    function validarOrfaos() {
-        temErroOrfaos = false;
-        // Lógica simplificada de órfãos
-        for (const r in layout) {
-            if (r === "BREAK") continue;
-            layout[r].forEach(sec => {
-                if (Array.isArray(sec)) {
-                    const ids = sec.filter(s => s !== "").map(s => r + (typeof s === "string" ? s.replace("w", "") : s));
-                    for (let i = 1; i < ids.length - 1; i++) {
-                        const atual = ids[i], ant = ids[i-1], prox = ids[i+1];
-                        const isFree = !ocupados.includes(atual) && !selectedSeats.includes(atual);
-                        const antOcc = ocupados.includes(ant) || selectedSeats.includes(ant);
-                        const proxOcc = ocupados.includes(prox) || selectedSeats.includes(prox);
-                        if (isFree && antOcc && proxOcc) temErroOrfaos = true;
-                    }
-                }
-            });
-        }
-    }
-
     async function reservar() {
-        if(temErroOrfaos) { alert("Não pode deixar lugares isolados."); return; }
-        const data = {
-            title: document.getElementById("aluno").value.trim(),
-            nome: document.getElementById("nome").value.trim(),
-            email: document.getElementById("email").value.trim(),
-            telefone: document.getElementById("telefone").value.trim(),
-            lugares: selectedSeats.join(",")
-        };
-
-        if(!data.title || !data.nome || !data.email || !data.telefone || selectedSeats.length === 0) {
-            alert("Preencha tudo e escolha lugares!"); return;
+        if(temErroOrfaos) {
+            alert("A seleção deixa lugares isolados. Escolha mais lugares ou selecione outro lugar.");
+            return;
         }
 
-        const res = await fetch(apiReservar, {
-            method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(data)
+        const aluno    = document.getElementById("aluno").value.trim();
+        const nome     = document.getElementById("nome").value.trim();
+        const email    = document.getElementById("email").value.trim();
+        const telefone = document.getElementById("telefone").value.trim();
+
+        if(!aluno || !nome || !email || !telefone) { alert("Preencha todos os campos!"); return; }
+        if(selectedSeats.length === 0)             { alert("Escolha pelo menos um lugar!"); return; }
+
+        const response = await fetch(apiReservar, {
+            method:  "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ 
+                title: aluno, 
+                nome, 
+                email, 
+                telefone, 
+                lugares: selectedSeats.join(",") 
+            })
         });
 
-        if(!res.ok) { alert(await res.text()); carregarLugares(); return; }
+        if(!response.ok){
+            const error = await response.text();
+            alert(error);
+            // 🔥 refresh imediato do mapa
+            carregarLugares();
+            return;
+        }
 
-        const toast = document.createElement("div");
-        toast.className = "toast-success";
-        toast.innerHTML = `<b>Reserva Concluída!</b><p>Verifique o seu email.</p>`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add("show"), 100);
+        // --- Substituição do alert antigo por este bloco ---
+    
+    // 1. Cria o elemento da notificação
+    const toast = document.createElement("div");
+    toast.className = "toast-success";
+    toast.innerHTML = `
+        <b>Reserva feita!</b>
+        <p>Dentro de alguns minutos irá receber um email com os dados de pagamento e da reserva.</p>
+    `;
+    document.body.appendChild(toast);
 
-        selectedSeats.length = 0;
-        ["aluno", "nome", "email", "telefone"].forEach(id => document.getElementById(id).value = "");
-        updateUI(); carregarLugares();
-        setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 1000); }, 5000);
-    }
+    // 2. Ativa a animação de entrada
+    setTimeout(() => toast.classList.add("show"), 100);
 
-    function togglePlanta() {
-        const el = document.getElementById("plantaBox");
-        el.style.display = el.style.display === "none" ? "block" : "none";
-    }
+    // 3. Limpa a seleção e os campos (como já tinhas antes)
+    selectedSeats.length = 0;
+    ["aluno", "nome", "email", "telefone"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+    
+    updateUI();
+    carregarLugares();
 
-    // --- 4. ZOOM E PAN MOBILE ---
-    if (window.innerWidth <= 768) {
-        const map = document.getElementById("map-wrapper");
-        const hint = document.getElementById("pinch-hint");
+    // 4. Remove a mensagem automaticamente após 6 segundos
     setTimeout(() => {
-        if(hint) hint.classList.add("fade-out");
-    }, 3000);
-        const containerMap = document.getElementById("map-container");
-        let scale = 1, posX = 0, posY = 0, lastDist = 0;
-
-        containerMap.addEventListener("touchstart", e => {
-            if(e.touches.length === 2) lastDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-            document.getElementById("pinch-hint").classList.add("fade-out");
-        }, {passive: true});
-
-        containerMap.addEventListener("touchmove", e => {
-            if(e.touches.length === 2) {
-                const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-                scale *= dist / lastDist;
-                scale = Math.min(Math.max(0.5, scale), 4);
-                lastDist = dist;
-            } else if(e.touches.length === 1) {
-                // Simples Pan pode ser adicionado aqui se necessário
-            }
-            map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-        }, {passive: false});
-    }
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 9000); // Remove do HTML após a animação de saída
+    }, 6000);
+}
 
     carregarLugares();
+    setInterval(carregarLugares, 10000);
+
+    // Apenas para Mobile
+    if (window.innerWidth <= 768) {
+        // 1. PRIMEIRO: Definir os elementos (essencial para não dar erro de inicialização)
+        const map = document.getElementById("map-wrapper");
+        const containerMap = document.getElementById("map-container");
+        const hint = document.getElementById("pinch-hint");
+
+        // 2. VARIÁVEIS DE ESTADO
+        let scale = 1;
+        let minScale = 0.5;
+        let maxScale = 4.0;
+        let posX = 0;
+        let posY = 0;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastDistance = null;
+
+        // 3. LÓGICA DA DICA
+        function fecharDica() {
+            if (hint && !hint.classList.contains("fade-out")) {
+                hint.classList.add("fade-out");
+                setTimeout(() => { if(hint.parentNode) hint.remove(); }, 500); 
+            }
+        }
+
+        // Ativar fecho por toque ou por tempo (4s)
+        if (containerMap) {
+            containerMap.addEventListener("touchstart", fecharDica, { passive: true });
+        }
+        setTimeout(fecharDica, 4000);
+
+        // 4. FUNÇÕES DE TRANSFORMAÇÃO
+        function updateTransform() {
+            const containerWidth = containerMap.clientWidth;
+            const containerHeight = containerMap.clientHeight;
+            const mapWidth = map.scrollWidth * scale;
+            const mapHeight = map.scrollHeight * scale;
+
+            // Limites Horizontais (Eixo X)
+            if (mapWidth <= containerWidth) {
+                posX = (containerWidth - mapWidth) / 2;
+            } else {
+                const minX = containerWidth - mapWidth;
+                const maxX = 0;
+                if (posX < minX) posX = minX;
+                if (posX > maxX) posX = maxX;
+            }
+
+            // Limites Verticais (Eixo Y)
+            if (mapHeight <= containerHeight) {
+                posY = (containerHeight - mapHeight) / 2;
+            } else {
+                const minY = containerHeight - mapHeight;
+                const maxY = 0;
+                if (posY < minY) posY = minY;
+                if (posY > maxY) posY = maxY;
+            }
+
+            map.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+        }
+
+        function fitAndCenterMap() {
+            const cw = containerMap.clientWidth;
+            const ch = containerMap.clientHeight;
+            const mw = map.scrollWidth;
+            const mh = map.scrollHeight;
+            if (mw === 0 || mh === 0) return;
+
+            const scaleX = cw / mw;
+            const scaleY = ch / mh;
+            scale = Math.min(scaleX, scaleY) * 0.95; 
+            minScale = scale * 0.8; 
+
+            posX = (cw - mw * scale) / 2;
+            posY = (ch - mh * scale) / 2;
+            updateTransform();
+        }
+
+        setTimeout(fitAndCenterMap, 500);
+
+        // 5. EVENTOS DE TOQUE
+        containerMap.addEventListener("touchstart", e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - posX;
+                startY = e.touches[0].clientY - posY;
+            }
+        }, { passive: false });
+
+        containerMap.addEventListener("touchmove", e => {
+            e.preventDefault(); 
+
+            if (e.touches.length === 2) {
+                let dx = e.touches[0].clientX - e.touches[1].clientX;
+                let dy = e.touches[0].clientY - e.touches[1].clientY;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (!lastDistance) {
+                    lastDistance = distance;
+                    return;
+                }
+
+                let delta = distance - lastDistance;
+                let zoomFactor = 0.007; 
+                let newScale = scale + delta * zoomFactor;
+
+                newScale = Math.max(minScale, Math.min(maxScale, newScale));
+
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                
+                posX = midX - (midX - posX) * (newScale / scale);
+                posY = midY - (midY - posY) * (newScale / scale);
+
+                scale = newScale;
+                lastDistance = distance;
+                updateTransform();
+                return;
+            }
+
+            if (isDragging && e.touches.length === 1) {
+                posX = e.touches[0].clientX - startX;
+                posY = e.touches[0].clientY - startY;
+                updateTransform();
+            }
+        }, { passive: false });
+
+        containerMap.addEventListener("touchend", () => {
+            isDragging = false;
+            lastDistance = null;
+        });
+    }
 </script>
 </body>
 </html>
