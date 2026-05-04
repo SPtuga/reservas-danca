@@ -368,6 +368,57 @@
     font-size: 14px;
     opacity: 0.9;
 }
+/* Estilo das setas de entrada nos corredores */
+.aisle-entrance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981; /* Verde */
+    font-weight: bold;
+    font-size: 16px;
+    user-select: none;
+}
+
+.aisle-entrance span {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+.aisle-entrance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px; /* 👈 mais largura (resolve sobreposição) */
+    height: 100%;
+    color: #22c55e;
+    font-weight: bold;
+    user-select: none;
+}
+
+/* 🔹 SETAS */
+.arrows-horizontal {
+    gap: 10px;
+}
+
+.arrow {
+    font-size: 16px;
+    animation: bounce 1.5s infinite;
+}
+
+/* 🔹 TEXTO */
+.text-only {
+    padding: 6px 0; /* 👈 afasta verticalmente das cadeiras */
+}
+
+.aisle-text {
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0.9;
+}
     </style>
 </head>
 <body>
@@ -494,13 +545,13 @@
         L: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
         M: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14,16],[18,20,22,24,26,28,30,32,34]],
         BREAK: true,
-        N: [[25,23,21,19,17,15,13,11],["5w","3w","1w",2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-        O: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-        P: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-        Q: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-        R: [[25,23,21,19,17,15,13,11],[9,7,5,3,1,0,2,4,6,8,10],[12,14,16,18,20,22,24,26]],
-        S: [[15,13,11],"tech",[12,14,16,18,20,22,24,26]],
-        T: [[11],"tech",[12,14]]
+        N: [[25,23,21,19,17,15,13,11,""],["5w","3w","1w",2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
+        O: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
+        P: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
+        Q: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
+        R: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,0,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
+        S: [[15,13,11,""],"tech",["",12,14,16,18,20,22,24,26]],
+        T: [[11,""],"tech",["",12,14]]
     };
 
     function togglePlanta() {
@@ -566,10 +617,31 @@
 
             layout[row].forEach((section, i) => {
                 // corredor DEPOIS da secção 0 e da secção 1
-                if(i > 0){
-                    const aisle = document.createElement("div");
-                    rowDiv.appendChild(aisle);
-                }
+                // corredor DEPOIS da secção 0 e da secção 1
+if(i > 0){
+    const aisle = document.createElement("div");
+
+    const filasComEntrada = ["O", "P", "Q", "R", "S"];
+
+    // 🔹 SETAS nas filas O → S
+    if (filasComEntrada.includes(row)) {
+        aisle.className = "aisle-entrance arrows-horizontal";
+        aisle.innerHTML = `
+            <span class="arrow">↓</span>
+            <span class="arrow">↑</span>
+        `;
+    }
+
+    // 🔹 TEXTO na fila T (nos dois lados)
+    if (row === "T" && (i === 1 || i === 2)) {
+        aisle.className = "aisle-entrance text-only";
+        aisle.innerHTML = `
+            <div class="aisle-text">Entrada<br>Saída</div>
+        `;
+    }
+
+    rowDiv.appendChild(aisle);
+}
 
                 if(section === "tech") {
                     const tech = document.createElement("div");
