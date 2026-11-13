@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=4.0">
-    <title>Reserva</title>
+    <title>Dance4You — Reservas de espetáculo</title>
     <style>
         * { box-sizing: border-box; }
 
@@ -89,7 +89,9 @@
             transition: background 0.15s, transform 0.1s;
         }
 
-        .seat:hover:not(.occupied) { transform: scale(1.15); }
+        .seat:hover:not(.occupied):not(.locked-other) { transform: scale(1.15); }
+        .seat.locked-other { background: #eab308; color: #1f2937; cursor: not-allowed; }
+        .seat.locked-other:disabled { opacity: 1; }
         .seat.selected  { background: #2563eb; }
         .seat.occupied  { background: #dc2626; cursor: not-allowed; }
 
@@ -419,7 +421,77 @@
     white-space: nowrap;
     opacity: 0.9;
 }
-    </style>
+
+        /* Pré-visualização: Auditório de Alverca (sem alterar o layout do Ateneu) */
+        .alverca-section { margin: 16px auto 20px; width: max-content; text-align: center; }
+        .alverca-section-title { font-weight: 700; color: #dbeafe; font-size: 15px; margin: 12px 0 7px; text-transform: uppercase; letter-spacing: .7px; }
+        .alverca-section + .alverca-section { border-top: 4px solid #64748b; padding-top: 15px; }
+        .alverca-row { display: flex; justify-content: center; align-items: center; width: max-content; margin: 2px auto; gap: 6px; }
+        .alverca-block { display: flex; align-items: center; }
+        .alverca-row .seat { width: 22px; height: 23px; margin: 1px; font-size: 9px; border-radius: 3px; }
+        .alverca-row .seat:disabled { opacity: 1; cursor: default; }
+        .alverca-row .seat:disabled:hover { transform: none; }
+        .alverca-inline-label { display: inline-flex; justify-content: center; align-items: center; width: 22px; height: 23px; font-size: 10px; font-weight: 700; color: #fde68a; flex-shrink: 0; }
+        .alverca-row .alverca-accessible { background: #f59e0b; color: #111827; font-size: 13px; }
+        .alverca-side-labels { display: flex; justify-content: space-between; font-size: 12px; margin: 7px 3px 2px; color: #cbd5e1; font-weight: 700; }
+        .alverca-status { font-size: 12px; color: #94a3b8; margin: 5px 0 10px; }
+        body.sala-alverca #map-container { overflow-x: auto; }
+        @media (min-width: 769px) {
+            body.sala-alverca #map-wrapper { position: relative; width: max-content; max-width: none; margin: 0 auto; top: auto; left: auto; transform: none; }
+        }
+        @media (max-width: 768px) {
+            body.sala-alverca #map-container { overflow: hidden; }
+        }
+        .alverca-row .seat:not(:disabled) { cursor: pointer; }
+        .alverca-row .seat:not(:disabled):hover { outline: 2px solid #93c5fd; }
+        .alverca-row .seat:focus-visible { outline: 3px solid #f8fafc; outline-offset: 1px; }
+        .limpar-selecao { margin-top: 9px; padding: 7px 10px; background: #334155; color: white; border: 1px solid #475569; border-radius: 6px; cursor: pointer; }
+        .limpar-selecao:disabled { opacity: 0.45; cursor: default; }
+        .aviso-orfaos:not([hidden]) { display: block; margin-top: 12px; padding: 10px 12px; border: 1px solid #f59e0b; background: #422006; color: #fde68a; border-radius: 7px; font-size: 13px; line-height: 1.5; }
+        .alverca-row .seat.orphan { outline: 3px solid #f59e0b; outline-offset: 1px; }
+        .atualizar-disponibilidade { background: #1d4ed8; border: 1px solid #60a5fa; border-radius: 7px;
+            color: white; font: inherit; font-size: 13px; padding: 9px 13px; cursor: pointer;
+            margin: 0 auto 12px; }
+        .atualizar-disponibilidade:disabled { opacity: .5; cursor: default; }
+        .locks-tempo { font-size: 13px; color: #facc15; margin-top: 8px; }
+        .seat.pending { opacity: .55; cursor: progress !important; }
+    
+        [hidden] { display: none !important; }
+        .form-reserva-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px; }
+        .form-reserva-grid label {display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:.93rem;color:#e2e8f0}
+        .form-reserva-grid input {background:#0f172a;color:white;border:1px solid #64748b;border-radius:8px;padding:10px;font:inherit;min-width:0}
+        .form-reserva-grid input:focus {outline:2px solid #60a5fa;outline-offset:1px}
+        .btn-validar-reserva {width:100%;background:#2563eb;color:#fff;padding:12px;border:0;border-radius:9px;font-weight:700;cursor:pointer;font-size:1rem}
+        .btn-validar-reserva:disabled {opacity:.45;cursor:not-allowed}
+        .resultado-validacao {padding:10px 0 0;color:#cbd5e1;font-size:.95rem;min-height:24px;overflow-wrap:anywhere}
+        .confirmar-gravacao {display:flex;align-items:flex-start;gap:10px;padding:11px 0;font-size:.91rem;color:#fcd34d;line-height:1.45}
+        .confirmar-gravacao input {margin-top:3px;width:18px;height:18px;flex:none}
+        .btn-validar-reserva:focus-visible {outline:3px solid #93c5fd;outline-offset:3px}
+        @media(max-width:620px){.form-reserva-grid{grid-template-columns:1fr}}
+
+
+        /* Comprovativo visível após uma gravação confirmada no SharePoint */
+        .comprovativo-reserva[hidden] { display:none !important; }
+        .comprovativo-reserva {border:1px solid #34d399; background:linear-gradient(145deg,#064e3b,#0f302a); border-radius:12px;
+            padding:18px; margin-top:16px; color:#ecfdf5; line-height:1.55; box-shadow:0 8px 24px #0002;}
+        .comprovativo-reserva h3 {margin:0 0 8px; font-size:1.15rem; color:#f0fdf4}
+        .comprovativo-reserva p {margin:6px 0 10px; font-size:.94rem;}
+        .comprovativo-reserva .comprovativo-destaque {background:#052e29; border:1px solid #166534; padding:10px;
+            border-radius:8px; margin:12px 0; overflow-wrap:anywhere;}
+        .comprovativo-reserva .comprovativo-meta {color:#c6f6d5; font-size:.88rem;}
+        .comprovativo-reserva .comprovativo-aviso {border-top:1px solid #ffffff30; padding-top:10px; color:#fef3c7;}
+        .comprovativo-reserva .nova-reserva {margin-top:12px; padding:9px 14px; cursor:pointer;
+            color:#fff; background:#047857; border:1px solid #34d399; border-radius:8px; font:inherit; font-weight:600;}
+        .comprovativo-reserva .nova-reserva:hover {background:#059669;}
+        .informacao-pagamento {margin-top:16px; border:1px solid #475569;}
+        .informacao-pagamento b {font-size:14px;}
+        .informacao-pagamento p {margin:5px 0;}
+        @media (max-width: 620px) {
+            .comprovativo-reserva {padding:14px}
+            .toast-success {width:calc(100% - 40px);max-width:420px;box-sizing:border-box;}
+        }
+
+</style>
 </head>
 <body>
 
@@ -427,7 +499,11 @@
 
     <!-- MAPA -->
     <div class="left">
-        <h2>Reserva de Lugares — Ateneu Artístico Vilafranquense</h2>
+        <h2 id="tituloSala">Reserva de Lugares — a carregar sala ativa...</h2>
+        <div id="estadoMapa" class="alverca-status" aria-live="polite"></div>
+        <div id="estadoSincronizacao" class="alverca-status" aria-live="polite">A verificar bloqueios de outros visitantes...</div>
+        <button id="btnAtualizarDisponibilidade" type="button" class="atualizar-disponibilidade"
+                onclick="atualizarDisponibilidade()" disabled>↻ Atualizar disponibilidade</button>
         <div class="stage">P A L C O</div>
         <div id="map-container">
             <div id="pinch-hint">
@@ -456,153 +532,698 @@
         <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
             <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Selecionado</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Ocupado</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> Bloqueado (outro visitante)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Reservado</div>
             <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Cadeira de rodas</div>
         </div>
 
         <div class="counter">
             <b>Lugares selecionados:</b> <span id="count">0</span>
-            <div id="lista" class="selected-list"></div>
+            <div id="lista" class="selected-list">Nenhum lugar selecionado</div>
+            <div id="tempoLocks" class="locks-tempo" aria-live="polite">Nenhum bloqueio ativo</div>
+            <button id="limparSelecao" type="button" class="limpar-selecao" onclick="limparSelecao()" disabled>Limpar seleção</button>
+            <div id="avisoOrfaos" class="aviso-orfaos" role="status" aria-live="polite" hidden></div>
         </div>
 
-        <div class="info-box" style="background:#7f1d1d; border:1px solid #ef4444;">
-    <b>Reservas Encerradas</b><br><br>
-
-    As reservas já não se encontram disponíveis através deste site.
-
-    <br><br>
-
-    Para adquirir bilhetes, deverá dirigir-se à bilheteira no dia do espetáculo, que estará aberta entre as <b>17h00</b> e <b>18h00</b>.
-
-    <br><br>
-
-    A disponibilidade de lugares estará sujeita aos lugares ainda existentes no momento da compra.
-</div>
-
-        <div class="info-box">
-            <b>Bilhete único — 8€</b><br>
-            Cada espectador ocupa um lugar e paga o mesmo valor.<br>
-            Crianças até 3 anos ao colo não pagam.
-            <br><br>
-            <b>Condições:</b>
-            <ul>
-                <li>Lugares numerados, escolhidos no mapa.</li>
-                <li>Reserva confirmada só após pagamento.</li>
-                <li>Válida por 48h — depois os lugares são libertados.</li>
-                <li>Bilhetes não reembolsáveis após pagamento.</li>
-                <li>Recomenda-se chegada antecipada.</li>
-                <li>Após início, entrada pode ser condicionada.</li>
-                <li>A organização pode alterar condições por imprevistos.</li>
-            </ul>
+        <div class="info-box" id="avisoReservasFechadas" style="border:1px solid #f59e0b">
+            <b>Reservas ainda não abertas</b>
+            <p>Podes consultar a disposição e disponibilidade da sala. A seleção de lugares e a confirmação de reservas serão ativadas quando abrirmos as inscrições.</p>
         </div>
+
+        <section class="info-box" id="painelValidacao" style="border:1px solid #475569; margin-top:16px;" hidden>
+            <h3 style="margin:0 0 9px;font-size:1.1rem">Dados para a reserva</h3>
+            <p style="font-size:.95rem;margin:0 0 12px;color:#cbd5e1">Preenche os teus dados e confirma os lugares selecionados para registar a reserva.</p>
+            <div class="form-reserva-grid">
+                <label>Nome do aluno <input id="aluno" type="text" maxlength="200" autocomplete="name" placeholder="Nome do aluno" required></label>
+                <label>Nome do responsável <input id="nome" type="text" maxlength="200" placeholder="Nome do responsável" required></label>
+                <label>Email <input id="email" type="email" maxlength="254" autocomplete="email" placeholder="email@exemplo.pt" required></label>
+                <label>Telefone <input id="telefone" type="tel" maxlength="40" autocomplete="tel" placeholder="Telefone" required></label>
+            </div>
+            <label class="confirmar-gravacao"><input type="checkbox" id="confirmarTesteReal"> Confirmo que os dados da reserva e os lugares selecionados estão corretos.</label>
+            <button type="button" id="btnValidarReserva" class="btn-validar-reserva" onclick="gravarReserva()" disabled>Confirmar reserva</button>
+            <div id="resultadoValidacao" role="status" aria-live="polite" class="resultado-validacao"></div>
+        </section>
+
+        <!-- Mantém as instruções do site anterior: não inserir IBAN/MB WAY no frontend. -->
+        <div class="info-box informacao-pagamento" id="informacaoPagamento">
+            <b>Informações sobre a reserva e o pagamento</b>
+            <p>Depois de registar a reserva, receberá um email com os dados da reserva e as instruções de pagamento.</p>
+            <p><strong>A reserva fica confirmada apenas após pagamento.</strong></p>
+        </div>
+
+        <section id="comprovativoReserva" class="comprovativo-reserva" role="status" aria-live="polite" tabindex="-1" hidden>
+            <h3>✅ Reserva registada com sucesso!</h3>
+            <p>Os lugares foram registados. A confirmação definitiva depende do pagamento.</p>
+            <div class="comprovativo-destaque">
+                <div><strong>Referência:</strong> <span id="comprovativoId"></span></div>
+                <div><strong>Auditório:</strong> <span id="comprovativoSala"></span></div>
+                <div><strong>Lugares (<span id="comprovativoQuantidade"></span>):</strong> <span id="comprovativoLugares"></span></div>
+                <div><strong>Email:</strong> <span id="comprovativoEmail"></span></div>
+            </div>
+            <p class="comprovativo-aviso"><strong>Pagamento:</strong> Dentro de alguns minutos deverá receber um email com os dados de pagamento e da reserva. Verifique também a pasta de spam.</p>
+            <p class="comprovativo-meta">O valor total e o número de bilhetes são tratados pelo Power Automate; não são calculados neste formulário.</p>
+            <button type="button" class="nova-reserva" onclick="location.reload()">Fazer outra reserva</button>
+        </section>
 
         <button class="planta-link" onclick="togglePlanta()">Ver Planta da Sala</button>
         <div id="plantaBox">
-            <img src="planta.jpg" alt="Planta da sala">
+            <img id="imagemPlanta" src="planta.jpg" alt="Planta da sala">
         </div>
 
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api")
-        .build();
+    // Publicação controlada: manter false até concluir o teste final em produção.
+    // A Function ReservarComLocks tem também de ser ativada no backend.
+    const RESERVAS_ABERTAS = true;
+    const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+        ? "http://localhost:7071/api"
+        : "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api";
+    const apiReservarComLocks = `${API_BASE}/ReservarComLocks`;
+    const apiBloquear = `${API_BASE}/BloquearLugar`;
+    const apiLibertar = `${API_BASE}/LibertarLugar`;
+    const apiLugares = `${API_BASE}/ObterLugaresPublicos`;
+    const apiBloqueios = `${API_BASE}/ObterBloqueiosAtivos`;
+    let SALA_ATIVA = null;
+    const API_CONFIGURACAO = `${API_BASE}/ObterConfiguracaoSala`;
 
-    connection.start()
-        .then(() => console.log("SignalR ligado"))
-        .catch(err => console.error(err));
+    document.getElementById("avisoReservasFechadas").hidden = RESERVAS_ABERTAS;
+    document.getElementById("painelValidacao").hidden = !RESERVAS_ABERTAS;
 
-    connection.on("seatLocked", (seatId) => {
-        document.querySelectorAll(".seat").forEach(btn => {
-            if(btn.dataset.id === seatId){
-                if(btn.classList.contains("occupied")) return;
-
-                btn.classList.add("temp");
-
-                setTimeout(() => {
-                    btn.classList.remove("temp");
-                }, 15000); // 👈 15s (antes 5min)
-            }
-        });
-    });
-
-    const apiReservar = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/Reservar";
-    const apiLugares = "https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/ObterLugares";
+    let configuracaoSala = null;
+    // Não existe JSON embutido nem fallback: esta versão valida a leitura da Function.
     let temErroOrfaos = false;
     let ocupados = [];
+    let disponibilidadeCarregada = false;
+    let bloqueiosCarregados = false;
+    let atualizacaoBloqueiosEmCurso = false;
+    const bloqueadosPorOutros = new Set();
+    let totalOcupadosAlverca = 0;
+    let atualizacaoEmCurso = false;
     const selectedSeats = [];
+    const locksAtivos = new Map(); // seatId -> {lockToken, expiresAt}
+    const seatsPending = new Set();
     const container = document.getElementById("seats");
 
-    const layout = {
-        A: [[23,21,19,17,15,"13w"], ["", "11w","9w",7,5,3,1,2,4,6,8,10,12, ""], [14,16,18,20,22,24]],
-        B: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
-        C: [[29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30]],
-        D: [[31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        E: [[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
-        F: [[33,31,29,27,25,23,21,19,17,15],[13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32,34]],
-        G: [[35,33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        H: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        I: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        J: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        K: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        L: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14],[16,18,20,22,24,26,28,30,32]],
-        M: [[33,31,29,27,25,23,21,19,17],[15,13,11,9,7,5,3,1,2,4,6,8,10,12,14,16],[18,20,22,24,26,28,30,32,34]],
-        BREAK: true,
-        N: [[25,23,21,19,17,15,13,11,""],["5w","3w","1w",2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
-        O: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
-        P: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
-        Q: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
-        R: [[25,23,21,19,17,15,13,11,""],[9,7,5,3,1,0,2,4,6,8,10],["",12,14,16,18,20,22,24,26]],
-        S: [[15,13,11,""],"tech",["",12,14,16,18,20,22,24,26]],
-        T: [[11,""],"tech",["",12,14]]
-    };
+    let layout = {}; // preenchido a partir de Ateneu_VilaFranca.json quando ativo
+
+
+    function converterLayoutAteneu(configuracao) {
+        const resultado = {};
+        for (const linha of configuracao.sections[0].rows) {
+            if (linha.breakBefore) resultado.BREAK = true;
+            resultado[linha.label] = linha.blocks.map(bloco => {
+                if (bloco.type === "technical") return "tech";
+                if (bloco.type !== "seats" || !Array.isArray(bloco.items)) {
+                    throw new Error("Bloco inválido na planta do Ateneu.");
+                }
+                return bloco.items;
+            });
+        }
+        return resultado;
+    }
+
+    function validarLugaresOrfaosAteneu() {
+        let total = 0, preenchidos = 0;
+        const marcados = new Set([...ocupados, ...bloqueadosPorOutros, ...selectedSeats]);
+        const blocos = [];
+        for (const [fila, secoes] of Object.entries(layout)) {
+            if (fila === "BREAK") continue;
+            for (const secao of secoes) {
+                if (secao === "tech") continue;
+                let grupo = [];
+                for (const lugar of secao) {
+                    if (lugar === "") {
+                        if (grupo.length) blocos.push(grupo);
+                        grupo = [];
+                        continue;
+                    }
+                    if (typeof lugar === "string" && lugar.includes("w")) {
+                        if (grupo.length) blocos.push(grupo);
+                        grupo = [];
+                        continue;
+                    }
+                    const id = `${fila}${lugar}`;
+                    grupo.push(id);
+                    total++;
+                    if (marcados.has(id)) preenchidos++;
+                }
+                if (grupo.length) blocos.push(grupo);
+            }
+        }
+        temErroOrfaos = false;
+        if (total && preenchidos / total < .7) {
+            for (const grupo of blocos) {
+                for (let i=1; i<grupo.length-1; i++) {
+                    if (!marcados.has(grupo[i]) && marcados.has(grupo[i-1]) && marcados.has(grupo[i+1])) {
+                        temErroOrfaos = true;
+                    }
+                }
+            }
+        }
+        const aviso = document.getElementById("avisoOrfaos");
+        if (aviso) {
+            aviso.hidden = !temErroOrfaos;
+            aviso.textContent = temErroOrfaos ? "⚠️ A seleção deixa um lugar livre isolado. Altera a seleção." : "";
+        }
+    }
 
     function togglePlanta() {
         const el = document.getElementById("plantaBox");
         el.style.display = el.style.display === "none" ? "block" : "none";
     }
 
-    function updateUI() {
-        document.getElementById("count").innerText = selectedSeats.length;
-        document.getElementById("lista").innerText = selectedSeats.join(", ");
-    }
+    // Alverca: mesma regra do Ateneu (um lugar livre entre dois ocupados
+    // na mesma sequência, apenas até 70% de ocupação total).
+    // Cada lado, corredor/rótulo e espaço de mobilidade reduzida separam grupos.
+    // A validação assinala lugares isolados durante a seleção.
+    function validarLugaresOrfaosAlverca() {
+        if (configuracaoSala?.venueId !== "Auditorio_Alverca") return;
+        const aviso = document.getElementById("avisoOrfaos");
+        const marcados = new Set([...ocupados, ...bloqueadosPorOutros, ...selectedSeats]);
+        const grupos = [];
+        let total = 0;
+        let preenchidos = 0;
 
-    async function carregarLugares() {
-        try {
-            const res  = await fetch(apiLugares);
-            if(!res.ok) throw new Error("HTTP " + res.status);
-            const data = await res.json();
-
-            ocupados = [];
-            if(data.value && Array.isArray(data.value)) {
-                data.value.forEach(i => {
-                    if(i.fields && i.fields.Lugares)
-                        ocupados.push(...i.fields.Lugares.split(","));
-                });
+        for (const secao of configuracaoSala.sections) {
+            for (const fila of secao.rows) {
+                for (const bloco of fila.blocks) {
+                    if (bloco.type !== "seats") continue;
+                    let grupo = [];
+                    const terminarGrupo = () => {
+                        if (grupo.length) grupos.push(grupo);
+                        grupo = [];
+                    };
+                    for (const item of bloco.items) {
+                        if (typeof item !== "number") {
+                            // Rótulos de fila, espaços acessíveis e vazios são separadores.
+                            terminarGrupo();
+                            continue;
+                        }
+                        const id = `${secao.id}-${fila.label}-${item}`;
+                        grupo.push(id);
+                        total++;
+                        if (marcados.has(id)) preenchidos++;
+                    }
+                    terminarGrupo();
+                }
             }
-        } catch(err) {
-            console.error("Erro ao carregar lugares:", err);
         }
 
-        const selectedAntes = [...selectedSeats];
-        container.innerHTML = "";
-        render();
-        selectedSeats.length = 0;
-
-        document.querySelectorAll(".seat").forEach(btn => {
-            const seatId = btn.dataset.id;
-            if(selectedAntes.includes(seatId) && !ocupados.includes(seatId)) {
-                btn.classList.add("selected");
-                selectedSeats.push(seatId);
+        const isolados = [];
+        if (total && preenchidos / total < 0.70) {
+            for (const grupo of grupos) {
+                for (let i = 1; i < grupo.length - 1; i++) {
+                    if (!marcados.has(grupo[i]) &&
+                        marcados.has(grupo[i - 1]) && marcados.has(grupo[i + 1])) {
+                        isolados.push(grupo[i]);
+                    }
+                }
             }
-        });
+        }
 
+        temErroOrfaos = isolados.length > 0;
+        // Realça apenas os lugares livres isolados, nunca os seleccionados.
+        container.querySelectorAll(".alverca-row .seat.orphan").forEach(b => b.classList.remove("orphan"));
+        for (const id of isolados) {
+            const botao = Array.from(container.querySelectorAll(".alverca-row .seat"))
+                .find(b => b.dataset.id === id);
+            if (botao) botao.classList.add("orphan");
+        }
+        if (aviso) {
+            aviso.hidden = !isolados.length;
+            aviso.textContent = isolados.length
+                ? `⚠️ A seleção deixa ${isolados.length} lugar(es) livre(s) isolado(s): ` +
+                  isolados.map(id => {
+                      const [zona, fila, num] = id.split("-");
+                      return `${zona === "plateia" ? "Plateia" : "Balcão"} ${fila}-${num}`;
+                  }).join(", ") + ". Seleciona também esses lugares ou altera a seleção."
+                : "";
+        }
+    }
+
+    function updateUI() {
+        document.getElementById("count").innerText = selectedSeats.length;
+        document.getElementById("lista").innerText = selectedSeats.length
+            ? selectedSeats.map(id => {
+                if (SALA_ATIVA === "Ateneu_VilaFranca") return `Fila ${id[0]} · Lugar ${id.slice(1)}`;
+                const partes = id.split("-");
+                const zona = partes[0] === "plateia" ? "Plateia" : "Balcão";
+                return `${zona} · Fila ${partes[1]} · Lugar ${partes[2]}`;
+              }).join(" | ")
+            : "Nenhum lugar selecionado";
+        const limpar = document.getElementById("limparSelecao");
+        if (limpar) limpar.disabled = !RESERVAS_ABERTAS || selectedSeats.length === 0 || seatsPending.size > 0 || validacaoEmCurso || !!pedidoPendente || reservaConcluida;
+        atualizarContagemLocks();
+        if (SALA_ATIVA === "Ateneu_VilaFranca") validarLugaresOrfaosAteneu();
+        else validarLugaresOrfaosAlverca();
+        atualizarBotaoValidacao();
+    }
+
+    function mensagemEstado(texto) {
+        document.getElementById("estadoMapa").textContent = texto;
+    }
+
+    function atualizarContagemLocks() {
+        const el = document.getElementById("tempoLocks");
+        if (!el) return;
+        const restantes = [...locksAtivos.values()]
+            .map(x => Math.max(0, Math.ceil((Date.parse(x.expiresAt) - Date.now()) / 1000)));
+        if (!restantes.length) { el.textContent = "Nenhum bloqueio ativo"; return; }
+        const seg = Math.min(...restantes);
+        el.textContent = `Bloqueios ativos: ${locksAtivos.size} · expiração mais próxima em ${Math.floor(seg / 60)}:${String(seg % 60).padStart(2,"0")}`;
+    }
+
+    // 3 estados distintos: a azul os meus locks; a amarelo os locks de outros;
+    // a vermelho reservas confirmadas. O tempo de bloqueio nunca e exposto ao publico.
+    function pintarBotaoLugar(botao) {
+        const id = botao.dataset.id;
+        const reservado = ocupados.includes(id);
+        const meu = locksAtivos.has(id) && selectedSeats.includes(id);
+        const externo = bloqueadosPorOutros.has(id) && !meu;
+        const especial = botao.classList.contains("wheelchair") ||
+                         botao.classList.contains("alverca-accessible");
+        botao.classList.toggle("selected", meu);
+        botao.classList.toggle("locked-other", externo && !reservado && !especial);
+        botao.classList.toggle("occupied", reservado && !especial);
+        botao.classList.toggle("pending", seatsPending.has(id));
+        botao.setAttribute("aria-pressed", String(meu));
+        // Em falha da API, manter desbloqueavel apenas o lock do proprio utilizador.
+        botao.disabled = !RESERVAS_ABERTAS || especial || validacaoEmCurso || !!pedidoPendente || reservaConcluida || seatsPending.has(id) ||
+            (!meu && (!disponibilidadeCarregada || !bloqueiosCarregados ||
+                      reservado || externo));
+        const baseTitle = botao.dataset.titleOriginal || botao.title;
+        botao.dataset.titleOriginal = baseTitle;
+        botao.title = reservado ? `${baseTitle} — Reservado` :
+            externo ? `${baseTitle} — Temporariamente bloqueado por outro visitante` :
+            meu ? `${baseTitle} — Selecionado por ti` : baseTitle;
+    }
+
+    function pintarEstadoLugar(seatId) {
+        const botao = Array.from(container.querySelectorAll(".seat[data-id]"))
+            .find(el => el.dataset.id === seatId);
+        if (botao) pintarBotaoLugar(botao);
+    }
+
+    function pintarTodosEstados() {
+        for (const botao of container.querySelectorAll(".seat[data-id]"))
+            pintarBotaoLugar(botao);
         updateUI();
     }
 
+    function identificadoresValidos() {
+        const ids = new Map();
+        for (const secao of configuracaoSala.sections) {
+            for (const fila of secao.rows) {
+                for (const bloco of fila.blocks) {
+                    if (bloco.type !== "seats") continue;
+                    for (const item of bloco.items) {
+                        if (typeof item !== "number") continue; // nao inclui lugares especiais
+                        const id = SALA_ATIVA === "Ateneu_VilaFranca"
+                            ? `${fila.label}${item}` : `${secao.id}-${fila.label}-${item}`;
+                        ids.set(id.toLowerCase(), id);
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    async function carregarBloqueiosAtivos() {
+        const response = await fetch(`${apiBloqueios}?sala=${encodeURIComponent(SALA_ATIVA)}`,
+            { method: "GET", cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (data?.sala !== SALA_ATIVA || !Array.isArray(data.bloqueados))
+            throw new Error("Resposta de bloqueios inesperada.");
+        const ids = identificadoresValidos();
+        const novos = new Set();
+        for (const id of data.bloqueados) {
+            if (typeof id !== "string") throw new Error("Identificador invalido.");
+            const valido = ids.get(id.toLowerCase());
+            if (valido) novos.add(valido);
+        }
+        bloqueadosPorOutros.clear();
+        for (const id of novos) bloqueadosPorOutros.add(id);
+        bloqueiosCarregados = true;
+        atualizarEstadoSincronizacao();
+    }
+
+    function atualizarEstadoSincronizacao(erro = null) {
+        const label = document.getElementById("estadoSincronizacao");
+        if (!label) return;
+        if (erro) {
+            label.textContent = `⚠️ Bloqueios indisponíveis (${erro}). Seleção de novos lugares suspensa.`;
+            return;
+        }
+        const externos = [...bloqueadosPorOutros].filter(id => !locksAtivos.has(id)).length;
+        label.textContent = `↻ Atualização automática (4 s) · ${externos} lugar(es) temporariamente bloqueado(s) por outros visitantes`;
+    }
+
+    async function atualizarBloqueiosAtivos() {
+        if (!configuracaoSala || atualizacaoBloqueiosEmCurso) return;
+        atualizacaoBloqueiosEmCurso = true;
+        try {
+            await carregarBloqueiosAtivos();
+        } catch (error) {
+            bloqueiosCarregados = false;
+            atualizarEstadoSincronizacao(error.message);
+            console.warn("Falha a atualizar SeatLocks:", error);
+        } finally {
+            atualizacaoBloqueiosEmCurso = false;
+            pintarTodosEstados();
+        }
+    }
+
+    // Sincronização por consulta a cada 4 segundos; SignalR não está integrado nesta versão.
+    setInterval(() => {
+        if (!document.hidden && configuracaoSala) void atualizarBloqueiosAtivos();
+    }, 4000);
+
+    function removerEstadoLocal(seatId) {
+        locksAtivos.delete(seatId);
+        const i = selectedSeats.indexOf(seatId);
+        if (i >= 0) selectedSeats.splice(i, 1);
+        pintarEstadoLugar(seatId);
+        updateUI();
+    }
+
+    async function chamarApiPost(url, dados) {
+        const resposta = await fetch(url, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados), cache: "no-store"
+        });
+        const conteudo = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) {
+            const erro = new Error(conteudo.erro || `HTTP ${resposta.status}`);
+            erro.status = resposta.status;
+            throw erro;
+        }
+        return conteudo;
+    }
+
+    // Operações efetivas no SharePoint: bloqueia um lugar antes de o marcar como selecionado.
+    async function alternarLugar(seatId) {
+        if (!RESERVAS_ABERTAS || validacaoEmCurso || pedidoPendente || reservaConcluida || seatsPending.has(seatId)) return;
+        if (!locksAtivos.has(seatId) &&
+            (!disponibilidadeCarregada || !bloqueiosCarregados ||
+             ocupados.includes(seatId) || bloqueadosPorOutros.has(seatId))) return;
+        seatsPending.add(seatId);
+        pintarEstadoLugar(seatId);
+        updateUI();
+        try {
+            if (locksAtivos.has(seatId)) {
+                const atual = locksAtivos.get(seatId);
+                try {
+                    const devolvido = await chamarApiPost(apiLibertar, {
+                        sala: SALA_ATIVA, seat: seatId, lockToken: atual.lockToken
+                    });
+                    if (devolvido.released !== true) throw new Error("Resposta de libertação inesperada.");
+                    removerEstadoLocal(seatId);
+                    mensagemEstado(`Lugar ${seatId} libertado na lista SeatLocks.`);
+                } catch (e) {
+                    // Um item expirado pode já ter sido apagado pelo timer.
+                    if (e.status === 404) {
+                        removerEstadoLocal(seatId);
+                        mensagemEstado(`O bloqueio de ${seatId} já não existia. Atualiza a disponibilidade antes de o voltar a selecionar.`);
+                    } else { throw e; }
+                }
+            } else {
+                const resposta = await chamarApiPost(apiBloquear, {
+                    sala: SALA_ATIVA, seat: seatId
+                });
+                if (resposta.sala !== SALA_ATIVA || resposta.seat !== seatId ||
+                    !/^[0-9a-f]{32}$/i.test(resposta.lockToken || "") ||
+                    !Number.isFinite(Date.parse(resposta.expiresAt)))
+                    throw new Error("A API devolveu um bloqueio inesperado. Confirma SeatLocks.");
+                locksAtivos.set(seatId, {
+                    lockToken: resposta.lockToken, expiresAt: resposta.expiresAt
+                });
+                selectedSeats.push(seatId);
+                mensagemEstado(`Lugar ${seatId} bloqueado até ${new Date(resposta.expiresAt).toLocaleTimeString("pt-PT")}.`);
+            }
+        } catch (e) {
+            mensagemEstado(`⚠️ Não foi possível ${locksAtivos.has(seatId) ? "libertar" : "bloquear"} ${seatId}: ${e.message}`);
+        } finally {
+            seatsPending.delete(seatId);
+            pintarEstadoLugar(seatId);
+            updateUI();
+            // Confirma imediatamente a versao no servidor (incluindo HTTP 409).
+            void atualizarBloqueiosAtivos();
+        }
+    }
+
+    async function limparSelecao() {
+        if (!RESERVAS_ABERTAS || validacaoEmCurso || pedidoPendente || reservaConcluida || seatsPending.size) return;
+        // Cada chamada valida individualmente o token. Em falha preserva a seleção para permitir repetir.
+        for (const id of [...selectedSeats]) await alternarLugar(id);
+    }
+
+    // A expiração é validada também no servidor. Não manter seleção local após os 5 minutos.
+    setInterval(() => {
+        let expirados = 0;
+        for (const [id, lock] of locksAtivos) {
+            if (Date.parse(lock.expiresAt) <= Date.now() && !seatsPending.has(id)) {
+                removerEstadoLocal(id);
+                expirados++;
+            }
+        }
+        atualizarContagemLocks();
+        if (expirados) mensagemEstado(`⚠️ ${expirados} bloqueio(s) expiraram. Seleciona novamente os lugares para os bloquear.`);
+    }, 1000);
+
+    // GET publico, mas a Function so envia IDs dos lugares ocupados de uma sala.
+    // Em caso de erro, a selecao de lugares fica totalmente desativada.
+    async function carregarLugares() {
+        disponibilidadeCarregada = false;
+        ocupados = [];
+        totalOcupadosAlverca = 0;
+
+        const url = `${apiLugares}?sala=${encodeURIComponent(SALA_ATIVA)}`;
+        const resposta = await fetch(url, { method: "GET", cache: "no-store" });
+        if (!resposta.ok) throw new Error(`Disponibilidade indisponivel (HTTP ${resposta.status}).`);
+        const dados = await resposta.json();
+        if (dados?.sala !== SALA_ATIVA || !Array.isArray(dados.ocupados)) {
+            throw new Error("A Function devolveu uma resposta inesperada.");
+        }
+        // IDs válidos para a sala carregada; nunca aceitar IDs de outro auditório.
+        const idsValidos = new Map();
+        for (const secao of configuracaoSala.sections) {
+            for (const fila of secao.rows) {
+                for (const bloco of fila.blocks) {
+                    if (bloco.type !== "seats") continue;
+                    for (const item of bloco.items) {
+                        if (item === "" || typeof item === "object") continue;
+                        const numero = String(item).replace("w", "");
+                        const id = SALA_ATIVA === "Ateneu_VilaFranca"
+                            ? `${fila.label}${numero}`
+                            : `${secao.id}-${fila.label}-${numero}`;
+                        idsValidos.set(id.toLowerCase(), id);
+                    }
+                }
+            }
+        }
+        const encontrados = new Set();
+        for (const id of dados.ocupados) {
+            if (typeof id !== "string") throw new Error("A Function devolveu IDs invalidos.");
+            const valido = idsValidos.get(id.trim().toLowerCase());
+            if (valido) encontrados.add(valido);
+        }
+        ocupados = [...encontrados];
+        totalOcupadosAlverca = ocupados.length;
+        disponibilidadeCarregada = true;
+    }
+
+    // Atualiza os lugares ocupados sem recarregar o HTML.
+    // Em falha de rede, todos os lugares ficam bloqueados (fail-closed).
+    async function atualizarDisponibilidade() {
+        if (!configuracaoSala || atualizacaoEmCurso) return;
+        if (locksAtivos.size || seatsPending.size || validacaoEmCurso || pedidoPendente) {
+            mensagemEstado("Liberta primeiro os lugares selecionados antes de atualizar a disponibilidade.");
+            return;
+        }
+        atualizacaoEmCurso = true;
+        const botaoAtualizar = document.getElementById("btnAtualizarDisponibilidade");
+        const estado = document.getElementById("estadoMapa");
+        if (botaoAtualizar) botaoAtualizar.disabled = true;
+        disponibilidadeCarregada = false;
+        container.querySelectorAll(".seat").forEach(botao => botao.disabled = true);
+        estado.textContent = "A confirmar disponibilidade no SharePoint...";
+        try {
+            await carregarLugares();
+            await carregarBloqueiosAtivos();
+            const ocupadosAgora = new Set(ocupados);
+            const removidos = selectedSeats.filter(id => ocupadosAgora.has(id));
+            const mantidos = selectedSeats.filter(id => !ocupadosAgora.has(id));
+            selectedSeats.splice(0, selectedSeats.length, ...mantidos);
+            container.innerHTML = "";
+            render();
+            pintarTodosEstados();
+            estado.textContent = `Disponibilidade atualizada: ${totalOcupadosAlverca} lugar(es) reservado(s). ` +
+                (removidos.length ? `${removidos.length} lugar(es) da tua seleção ficaram ocupados e foram removidos. ` : "") +
+                "A seleção está sincronizada com os lugares reservados.";
+        } catch (erro) {
+            selectedSeats.length = 0;
+            ocupados = [];
+            disponibilidadeCarregada = false;
+            bloqueiosCarregados = false;
+            container.innerHTML = "";
+            render();
+            updateUI();
+            estado.textContent = `⚠️ Não foi possível confirmar disponibilidade (${erro.message}). Seleção desativada.`;
+            console.warn("Falha na atualização dos lugares:", erro);
+        } finally {
+            atualizacaoEmCurso = false;
+            if (botaoAtualizar) botaoAtualizar.disabled = false;
+        }
+    }
+
+    // A planta de Alverca é desenhada a partir do JSON; não mexe no render do Ateneu.
+    function renderAlverca() {
+        const fragment = document.createDocumentFragment();
+        for (const section of configuracaoSala.sections) {
+            const sectionDiv = document.createElement("div");
+            sectionDiv.className = "alverca-section";
+
+            const titulo = document.createElement("div");
+            titulo.className = "alverca-section-title";
+            titulo.textContent = section.label;
+            sectionDiv.appendChild(titulo);
+
+            for (const row of section.rows) {
+                const linha = document.createElement("div");
+                linha.className = "alverca-row";
+
+                for (const block of row.blocks) {
+                    if (block.type !== "seats") continue;
+                    const bloco = document.createElement("div");
+                    bloco.className = "alverca-block";
+
+                    for (const item of block.items) {
+                        if (item && typeof item === "object" && item.type === "rowLabel") {
+                            const letra = document.createElement("span");
+                            letra.className = "alverca-inline-label";
+                            letra.textContent = item.label;
+                            bloco.appendChild(letra);
+                            continue;
+                        }
+                        if (item === "") {
+                            const espaco = document.createElement("span");
+                            espaco.style.width = "24px";
+                            bloco.appendChild(espaco);
+                            continue;
+                        }
+
+                        const especial = item && typeof item === "object" && item.type === "accessible";
+                        const idLugar = especial
+                            ? item.id
+                            : `${section.id}-${row.label}-${String(item).replace("w", "")}`;
+                        const botao = document.createElement("button");
+                        botao.type = "button";
+                        botao.className = "seat";
+                        botao.dataset.id = idLugar;
+                        // A seleção cria e liberta bloqueios de SeatLocks através das Functions.
+                        // Esp. mobilidade reduzida mantêm o contacto com a academia.
+                        const reservado = !especial && ocupados.includes(idLugar);
+                        botao.disabled = !RESERVAS_ABERTAS || especial || reservado || !disponibilidadeCarregada ||
+                            !bloqueiosCarregados || bloqueadosPorOutros.has(idLugar);
+                        if (reservado) botao.classList.add("occupied");
+                        else if (!especial && bloqueadosPorOutros.has(idLugar) && !locksAtivos.has(idLugar))
+                            botao.classList.add("locked-other");
+                        const selecionado = !especial && !reservado && selectedSeats.includes(idLugar);
+                        if (selecionado) botao.classList.add("selected");
+                        botao.setAttribute("aria-pressed", String(selecionado));
+                        botao.textContent = especial ? "♿" : String(item).replace("w", "");
+                        botao.title = especial
+                            ? `${section.label} — ${row.label}: lugar de mobilidade reduzida (${idLugar})`
+                            : `${section.label} — Fila ${row.label}, lugar ${item}`;
+                        if (especial) {
+                            botao.classList.add("wheelchair", "alverca-accessible");
+                            botao.style.width = `${24 * (item.span || 1) - 2}px`;
+                        }
+                        if (especial) {
+                            botao.title += " — Contacta a academia para reservas destes espaços";
+                        } else {
+                            if (reservado) botao.title += " — Reservado";
+                            else if (bloqueadosPorOutros.has(idLugar) && !locksAtivos.has(idLugar))
+                                botao.title += " — Bloqueado temporariamente por outra pessoa";
+                            if (!disponibilidadeCarregada) botao.title += " — Disponibilidade indisponível";
+                            botao.addEventListener("click", () => alternarLugar(idLugar));
+                        }
+                        bloco.appendChild(botao);
+                    }
+                    linha.appendChild(bloco);
+                }
+                sectionDiv.appendChild(linha);
+            }
+            const lados = document.createElement("div");
+            lados.className = "alverca-side-labels";
+            const impares = document.createElement("span");
+            const pares = document.createElement("span");
+            impares.textContent = section.display?.oddSideLabel || "Ímpares";
+            pares.textContent = section.display?.evenSideLabel || "Pares";
+            lados.append(impares, pares);
+            sectionDiv.appendChild(lados);
+            fragment.appendChild(sectionDiv);
+        }
+        container.appendChild(fragment);
+        if (typeof window.ajustarMapaMobile === "function") {
+            requestAnimationFrame(() => window.ajustarMapaMobile());
+        }
+    }
+
+    async function iniciarMapa() {
+        const estado = document.getElementById("estadoMapa");
+        estado.textContent = "A carregar a planta do SharePoint através da Function...";
+        try {
+            const url = API_CONFIGURACAO;
+            const resposta = await fetch(url, { cache: "no-store" });
+            if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+            const respostaJson = await resposta.json();
+            const data = typeof respostaJson === "string" ? JSON.parse(respostaJson) : respostaJson;
+
+            if (!["Ateneu_VilaFranca", "Auditorio_Alverca"].includes(data?.venueId) ||
+                !Array.isArray(data.sections)) {
+                throw new Error("A Function devolveu um JSON de sala inválido.");
+            }
+            SALA_ATIVA = data.venueId;
+            configuracaoSala = data;
+            if (SALA_ATIVA === "Ateneu_VilaFranca") {
+                layout = converterLayoutAteneu(data);
+            }
+            let erroDisponibilidade = null;
+            try {
+                await carregarLugares();
+                await carregarBloqueiosAtivos();
+            } catch (erro) {
+                erroDisponibilidade = erro;
+                console.warn("Disponibilidade não confirmada:", erro.message);
+            }
+            document.body.classList.toggle("sala-alverca", SALA_ATIVA === "Auditorio_Alverca");
+            document.getElementById("tituloSala").textContent = `Reserva de Lugares — ${data.venueName}`;
+            document.getElementById("imagemPlanta").src =
+                SALA_ATIVA === "Auditorio_Alverca" ? "planta_alverca.png" : "planta.jpg";
+            container.innerHTML = "";
+            render();
+            pintarTodosEstados();
+            document.getElementById("btnAtualizarDisponibilidade").disabled = false;
+            estado.textContent = erroDisponibilidade
+                ? `⚠️ Planta carregada, mas não foi possível confirmar os lugares ocupados: ${erroDisponibilidade.message} Seleção desativada.`
+                : `${data.venueName} · ${totalOcupadosAlverca} lugar(es) reservado(s). Atualização automática de bloqueios ativa.`;
+        } catch (erro) {
+            configuracaoSala = null;
+            container.innerHTML = ""; // Sem fallback para a planta anterior
+            estado.textContent = "Não foi possível carregar a planta. Por favor, tenta novamente mais tarde.";
+            console.error("Erro na leitura do JSON pelo Graph:", erro);
+        }
+    }
+
     function render() {
+        if (configuracaoSala?.venueId === "Auditorio_Alverca") {
+            renderAlverca();
+            return;
+        }
         for(const row in layout) {
             if(row === "BREAK") {
                 const gap = document.createElement("div");
@@ -693,72 +1314,12 @@ if(i > 0){
                     }
 
                     if(ocupados.includes(seatId)) btn.classList.add("occupied");
+                    else if (!isWheel && bloqueadosPorOutros.has(seatId) && !locksAtivos.has(seatId))
+                        btn.classList.add("locked-other");
+                    btn.disabled = !RESERVAS_ABERTAS || isWheel || ocupados.includes(seatId) || !disponibilidadeCarregada ||
+                        !bloqueiosCarregados || (bloqueadosPorOutros.has(seatId) && !locksAtivos.has(seatId));
 
-                    btn.onclick = () => {
-                        if(btn.classList.contains("occupied")) return;
-
-                        const idx = selectedSeats.indexOf(seatId);
-
-                        if(idx > -1) {
-                            selectedSeats.splice(idx, 1);
-                            btn.classList.remove("selected");
-                        } else {
-                            selectedSeats.push(seatId);
-                            btn.classList.add("selected");
-
-                            // 🔔 apenas feedback visual (SignalR)
-                            fetch("https://reservas-danca-2026-btfcdjb3avg3bph2.westeurope-01.azurewebsites.net/api/selectSeat", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ seat: seatId })
-                            });
-                        }
-
-                        // 🔍 validação órfãos (CORRIGIDA)
-let total = 0, ocup = 0;
-for (const r in layout) {
-    if (r === "BREAK") continue;
-    layout[r].forEach(sec => {
-        if (sec === "tech") return;
-        sec.forEach(s => {
-            if (s === "") return; // Ignora espaços vazios
-            const n = typeof s === "string" ? s.replace("w", "") : s;
-            total++;
-            if (ocupados.includes(r + n) || selectedSeats.includes(r + n)) ocup++;
-        });
-    });
-}
-
-temErroOrfaos = false;
-// Só valida se a ocupação for menor que 70% (conforme a tua regra original)
-if (ocup / total < 0.7) {
-    for (const r in layout) {
-        if (r === "BREAK") continue;
-
-        // Validamos cada secção (bloco) INDEPENDENTEMENTE
-        layout[r].forEach(sec => {
-            if (sec === "tech") return;
-
-            // Criamos o estado apenas desta secção/bloco
-            const filaBloco = sec
-                .filter(s => s !== "") // Remove espaços vazios do cálculo de vizinhança
-                .map(s => {
-                    const id = r + (typeof s === "string" ? s.replace("w", "") : s);
-                    return (ocupados.includes(id) || selectedSeats.includes(id)) ? 1 : 0;
-                });
-
-            // Verifica órfãos apenas dentro deste bloco
-            for (let i = 1; i < filaBloco.length - 1; i++) {
-                if (filaBloco[i] === 0 && filaBloco[i - 1] === 1 && filaBloco[i + 1] === 1) {
-                    temErroOrfaos = true;
-                }
-            }
-        });
-    }
-}
-
-updateUI();
-                    };
+                    btn.onclick = () => alternarLugar(seatId);
 
                     sec.appendChild(btn);
                 });
@@ -776,73 +1337,177 @@ updateUI();
         }
     }
 
-    async function reservar() {
-        if(temErroOrfaos) {
-            alert("A seleção deixa lugares isolados. Escolha mais lugares ou selecione outro lugar.");
+    let validacaoEmCurso = false;
+    // O mesmo ReservaId e o mesmo pedido são reutilizados em tentativas de recuperação.
+    // Não persistimos dados pessoais nem LockTokens em localStorage ou sessionStorage.
+    let pedidoPendente = null;
+    let reservaConcluida = false;
+
+    function atualizarBotaoValidacao() {
+        const botao = document.getElementById("btnValidarReserva");
+        const confirmar = document.getElementById("confirmarTesteReal");
+        if (!botao) return;
+        for (const id of ["aluno", "nome", "email", "telefone"]) {
+            document.getElementById(id).disabled = validacaoEmCurso || !!pedidoPendente || reservaConcluida;
+        }
+        confirmar.disabled = validacaoEmCurso || !!pedidoPendente || reservaConcluida;
+        if (reservaConcluida) { botao.disabled = true; botao.textContent = "Reserva registada"; return; }
+        // Em falha de rede, volta a enviar exatamente o mesmo pedido para recuperar o resultado.
+        if (pedidoPendente) {
+            botao.textContent = "Verificar / repetir o mesmo pedido";
+            botao.disabled = validacaoEmCurso;
             return;
         }
-
-        const aluno    = document.getElementById("aluno").value.trim();
-        const nome     = document.getElementById("nome").value.trim();
-        const email    = document.getElementById("email").value.trim();
-        const telefone = document.getElementById("telefone").value.trim();
-
-        if(!aluno || !nome || !email || !telefone) { alert("Preencha todos os campos!"); return; }
-        if(selectedSeats.length === 0)             { alert("Escolha pelo menos um lugar!"); return; }
-
-        const response = await fetch(apiReservar, {
-            method:  "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ 
-                title: aluno, 
-                nome, 
-                email, 
-                telefone, 
-                lugares: selectedSeats.join(",") 
-            })
+        botao.textContent = validacaoEmCurso ? "A gravar..." : "Confirmar reserva";
+        const campos = ["aluno", "nome", "email", "telefone"].map(id => document.getElementById(id));
+        const preenchido = campos.every(c => c && c.value.trim() && c.checkValidity());
+        const tokensValidos = selectedSeats.length > 0 && selectedSeats.every(id => {
+            const lock = locksAtivos.get(id);
+            return lock && Date.parse(lock.expiresAt) > Date.now() + 45000;
         });
+        botao.disabled = !RESERVAS_ABERTAS || validacaoEmCurso || !confirmar.checked || !SALA_ATIVA || !preenchido ||
+            !tokensValidos || seatsPending.size > 0 || temErroOrfaos ||
+            !disponibilidadeCarregada || !bloqueiosCarregados;
+    }
 
-        if(!response.ok){
-            const error = await response.text();
-            alert(error);
-            // 🔥 refresh imediato do mapa
-            carregarLugares();
-            return;
-        }
-
-        // --- Substituição do alert antigo por este bloco ---
-    
-    // 1. Cria o elemento da notificação
-    const toast = document.createElement("div");
-    toast.className = "toast-success";
-    toast.innerHTML = `
-        <b>Reserva feita!</b>
-        <p>Dentro de alguns minutos irá receber um email com os dados de pagamento e da reserva.</p>
-    `;
-    document.body.appendChild(toast);
-
-    // 2. Ativa a animação de entrada
-    setTimeout(() => toast.classList.add("show"), 100);
-
-    // 3. Limpa a seleção e os campos (como já tinhas antes)
-    selectedSeats.length = 0;
-    ["aluno", "nome", "email", "telefone"].forEach(id => {
+    for (const id of ["aluno", "nome", "email", "telefone", "confirmarTesteReal"]) {
         const el = document.getElementById(id);
-        if (el) el.value = "";
+        el.addEventListener("input", atualizarBotaoValidacao);
+        el.addEventListener("change", atualizarBotaoValidacao);
+    }
+    setInterval(atualizarBotaoValidacao, 1000);
+
+    function novoReservaId() {
+        if (!globalThis.crypto || !globalThis.crypto.randomUUID)
+            throw new Error("O navegador não permite gerar uma referência de reserva segura.");
+        return crypto.randomUUID().replaceAll("-", "");
+    }
+
+    function mostrarConfirmacaoReserva(pedido, idConfirmado, repetido) {
+        const comp = document.getElementById("comprovativoReserva");
+        document.getElementById("comprovativoId").textContent = idConfirmado;
+        document.getElementById("comprovativoSala").textContent = configuracaoSala?.venueName || pedido.sala;
+        document.getElementById("comprovativoQuantidade").textContent = String(pedido.lugares.length);
+        document.getElementById("comprovativoLugares").textContent = pedido.lugares.join(", ");
+        document.getElementById("comprovativoEmail").textContent = pedido.email;
+        comp.hidden = false;
+
+        // Reutiliza o toast verde original, sem guardar dados pessoais no toast.
+        const toast = document.createElement("div");
+        toast.className = "toast-success";
+        toast.setAttribute("role", "status");
+        const heading = document.createElement("b");
+        heading.textContent = "Reserva feita!";
+        const note = document.createElement("p");
+        note.textContent = "Dentro de alguns minutos deverá receber um email com os dados de pagamento e da reserva.";
+        toast.append(heading, note);
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add("show"));
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 650);
+        }, 6500);
+        comp.scrollIntoView({behavior: "smooth", block: "nearest"});
+    }
+
+    async function gravarReserva() {
+        if (!RESERVAS_ABERTAS || validacaoEmCurso || reservaConcluida) return;
+        atualizarBotaoValidacao();
+        const botao = document.getElementById("btnValidarReserva");
+        if (botao.disabled) return;
+        const respostaEl = document.getElementById("resultadoValidacao");
+        validacaoEmCurso = true;
+        atualizarBotaoValidacao();
+        respostaEl.style.color = "#cbd5e1";
+        respostaEl.textContent = "A confirmar a reserva no SharePoint...";
+        // Recuperação de falha de comunicação: não muda ID, lugares, dados nem tokens.
+        let pedido = pedidoPendente;
+        try {
+            if (!pedido) {
+                pedido = {
+                    reservaId: novoReservaId(),
+                    sala: SALA_ATIVA,
+                    title: document.getElementById("aluno").value.trim(),
+                    nome: document.getElementById("nome").value.trim(),
+                    email: document.getElementById("email").value.trim(),
+                    telefone: document.getElementById("telefone").value.trim(),
+                    lugares: [...selectedSeats],
+                    locks: selectedSeats.map(seat => ({seat, lockToken: locksAtivos.get(seat).lockToken}))
+                };
+                pedidoPendente = pedido;
+            }
+            const r = await fetch(apiReservarComLocks, {
+                method: "POST", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(pedido), cache: "no-store"
+            });
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok) {
+                const e = new Error(data.erro || `HTTP ${r.status}`);
+                e.status = r.status;
+                throw e;
+            }
+            if (data.gravado !== true || data.reservaId !== pedido.reservaId ||
+                data.sala !== pedido.sala || data.totalLugares !== pedido.lugares.length)
+                throw new Error("Resposta inesperada. O registo pode ter sido criado; não alteres o pedido.");
+
+            reservaConcluida = true;
+            pedidoPendente = null;
+            const idConfirmado = data.reservaId;
+            // A Function de gravação já eliminou os seus SeatLocks (best effort).
+            // Não enviar LibertarLugar com tokens antigos: a reserva está confirmada.
+            selectedSeats.length = 0;
+            locksAtivos.clear();
+            bloqueadosPorOutros.clear();
+            respostaEl.style.color = "#86efac";
+            respostaEl.textContent = `✅ Reserva registada! Referência: ${idConfirmado}. ` +
+                `${data.repetido ? "Pedido recuperado sem duplicação. " : ""}` +
+                "Reserva pendente de pagamento.";
+            mostrarConfirmacaoReserva(pedido, idConfirmado, data.repetido);
+            // Limpar os campos pessoais após a confirmação (o comprovativo mantém os detalhes relevantes).
+            for (const campoId of ["aluno", "nome", "email", "telefone"]) {
+                document.getElementById(campoId).value = "";
+            }
+            mensagemEstado("Reserva registada. Atualização da planta em curso...");
+            // Atualizar para vermelho; se falhar, não assumir que os lugares ficaram livres.
+            try {
+                await carregarLugares();
+                await carregarBloqueiosAtivos();
+                container.innerHTML = "";
+                render();
+                pintarTodosEstados();
+            } catch (e) {
+                disponibilidadeCarregada = false;
+                bloqueiosCarregados = false;
+                pintarTodosEstados();
+                mensagemEstado("Reserva guardada. Falhou apenas a atualização da planta; atualiza a página para confirmar os lugares ocupados.");
+            }
+        } catch (e) {
+            // Apenas 400/409 significam que o backend recusou explicitamente este pedido.
+            // Nos erros de rede/502/503, pode ter sido persistido: preservar ReservaId/payload.
+            if (e.status === 400 || e.status === 409) {
+                pedidoPendente = null;
+                respostaEl.textContent = `⚠️ Reserva não aceite: ${e.message}. Revê os lugares e tenta novamente.`;
+                try { await atualizarBloqueiosAtivos(); } catch (_) { /* aviso já no painel */ }
+            } else {
+                respostaEl.textContent = `⚠️ Não foi possível confirmar o resultado (${e.message}). ` +
+                    `ReservaId: ${pedido?.reservaId || "indisponível"}. Não mudes de lugares nem atualizes a página; ` +
+                    "clica em ‘Verificar / repetir o mesmo pedido’.";
+            }
+            respostaEl.style.color = "#fca5a5";
+        } finally {
+            validacaoEmCurso = false;
+            pintarTodosEstados();
+            atualizarBotaoValidacao();
+        }
+    }
+
+    window.addEventListener("beforeunload", event => {
+        if (!locksAtivos.size && !pedidoPendente) return;
+        event.preventDefault();
+        event.returnValue = "";
     });
-    
-    updateUI();
-    carregarLugares();
 
-    // 4. Remove a mensagem automaticamente após 6 segundos
-    setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 9000); // Remove do HTML após a animação de saída
-    }, 6000);
-}
-
-    carregarLugares();
-    setInterval(carregarLugares, 10000);
+    iniciarMapa();
 
     // Apenas para Mobile
     if (window.innerWidth <= 768) {
@@ -922,6 +1587,7 @@ updateUI();
             updateTransform();
         }
 
+        window.ajustarMapaMobile = fitAndCenterMap;
         setTimeout(fitAndCenterMap, 500);
 
         // 5. EVENTOS DE TOQUE
