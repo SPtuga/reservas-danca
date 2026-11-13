@@ -491,15 +491,200 @@
             .toast-success {width:calc(100% - 40px);max-width:420px;box-sizing:border-box;}
         }
 
+
+        /* DANCE4YOU — EXPERIÊNCIA PREMIUM (sem alterações às APIs) */
+        :root {
+            --ink:#07111f; --panel:#111d30; --panel-hi:#1b2940;
+            --line:rgba(187,208,240,.16); --muted:#a5b7d0;
+            --white:#f8fbff; --gold:#d8b775;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: "Segoe UI", Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            color:var(--white);
+            background: radial-gradient(ellipse at 18% 0, #1a2a46 0%, transparent 40%),
+                        radial-gradient(ellipse at 100% 35%, #10213a 0%, transparent 35%),
+                        #08111f;
+        }
+        .site-header {
+            width:min(100% - 48px, 1580px); margin:0 auto;
+            min-height:105px; padding:16px 8px 18px;
+            display:flex; align-items:center; justify-content:space-between;
+            gap:24px; border-bottom:1px solid var(--line);
+        }
+        .site-brand {display:flex;gap:17px;align-items:center;min-width:0;}
+        .site-brand img {width:73px;height:73px;object-fit:contain;flex-shrink:0;}
+        .brand-eyebrow, .section-eyebrow, .confirm-eyebrow {
+            display:block;letter-spacing:2px;font-size:10px;font-weight:800;color:var(--gold);
+        }
+        .brand-title {margin-top:5px;font-size:25px;font-weight:750;letter-spacing:-.7px;}
+        .brand-title span {font-weight:400;color:var(--muted);}
+        .header-note {color:var(--muted);font-size:13px;letter-spacing:.2px;white-space:nowrap;}
+        .main {
+            width:min(100% - 48px, 1580px); margin:0 auto;
+            display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,440px);
+            gap:24px;padding:26px 0 40px;align-items:start;
+        }
+        .left {
+            min-width:0; padding:26px 25px 30px; text-align:center;
+            background:linear-gradient(153deg, rgba(23,37,59,.9),rgba(10,19,35,.95));
+            border:1px solid var(--line);border-radius:19px;
+            box-shadow:0 20px 45px rgba(0,0,0,.12);overflow:hidden;
+        }
+        .map-heading {margin-bottom:12px;}
+        .map-heading h2 {font-size:clamp(18px,1.75vw,25px);font-weight:700;letter-spacing:-.4px;margin:8px 0 5px;}
+        .map-heading p {margin:0 0 14px;color:var(--muted);font-size:13px;}
+        .stage {border:1px solid rgba(208,218,235,.12);background:linear-gradient(105deg,#33445d,#25354c);padding:10px 16px;letter-spacing:3px;border-radius:10px;}
+        .right {width:auto;min-width:0;padding:0;border:0;gap:13px;overflow:visible;}
+        .aside-heading {padding:5px 2px 0;}
+        .aside-heading h3 {font-size:22px;letter-spacing:-.4px;margin:5px 0 0;}
+        .legend, .counter, #painelValidacao {
+            background:linear-gradient(155deg,rgba(27,41,64,.96),rgba(19,31,49,.98));
+            border:1px solid var(--line);border-radius:15px;
+            box-shadow:0 10px 30px rgba(0,0,0,.09);
+        }
+        .legend {padding:14px 15px;gap:11px 17px;font-size:12px;line-height:1.35;}
+        .legend-dot {border-radius:4px;width:13px;height:13px;}
+        .counter {padding:17px 18px;font-size:14px;}
+        .counter>b {font-weight:650;}
+        .selected-list {font-size:13px;line-height:1.6;word-break:normal;overflow-wrap:anywhere;margin-top:8px;}
+        .locks-tempo {font-size:12px;}
+        .limpar-selecao {margin-top:12px;padding:8px 13px;border-radius:8px;background:#263750;border-color:#40516c;}
+        #painelValidacao {padding:20px 19px 19px;}
+        .form-heading h3 {font-size:19px;letter-spacing:-.3px;margin:6px 0;}
+        .form-heading p {font-size:13px;color:#bccbe0;margin:0 0 17px;line-height:1.55;}
+        .form-reserva-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 12px;margin-bottom:14px;}
+        .form-reserva-grid label {min-width:0;font-size:12px;gap:7px;color:#dce5f4;font-weight:650;}
+        .form-reserva-grid label.form-wide {grid-column:1/-1;}
+        .form-reserva-grid input {
+            min-width:0;width:100%;display:block;background:#0a1527;border:1px solid #465874;
+            color:#fff;border-radius:10px;padding:12px 13px;min-height:46px;
+            font-size:14px;line-height:1.3;letter-spacing:0;overflow:visible;
+        }
+        .form-reserva-grid input::placeholder {color:#8fa2bd;opacity:1;}
+        .form-reserva-grid input:focus {border-color:#b9d1ff;outline:2px solid rgba(96,165,250,.3);outline-offset:1px;}
+        .form-reserva-grid input:-webkit-autofill,
+        .form-reserva-grid input:-webkit-autofill:focus { -webkit-text-fill-color:#f8fbff;box-shadow:0 0 0 1000px #15253d inset;caret-color:white; }
+        .confirmar-gravacao {font-size:12px;color:#d5e0ef;gap:10px;padding:9px 0 16px;}
+        .confirmar-gravacao input {accent-color:#d8b775;}
+        .btn-validar-reserva {
+            min-height:49px;border-radius:10px;background:linear-gradient(110deg,#4169c3,#2b55ac);
+            box-shadow:0 6px 16px rgba(33,82,187,.19);font-size:14px;letter-spacing:.15px;
+        }
+        .btn-validar-reserva:not(:disabled):hover {background:linear-gradient(110deg,#5278d1,#3563c1);}
+        .btn-validar-reserva:disabled {opacity:.55;}
+        .resultado-validacao {font-size:13px;line-height:1.5;}
+        .planta-link {display:block;margin:2px 3px 8px;color:#b8cdf3;text-decoration:none;font-size:12px;}
+        .planta-link:hover {color:white;text-decoration:underline;}
+        #plantaBox img {max-width:100%;}
+        .seat {border:1px solid rgba(255,255,255,.07);}
+        .alverca-section-title {font-size:14px;color:#dce6f6;margin-top:10px;}
+        .atualizar-disponibilidade {background:transparent;border:1px solid rgba(158,184,222,.35);border-radius:9px;font-size:12px;color:#cbdcf4;padding:9px 12px;}
+        .atualizar-disponibilidade:not(:disabled):hover {background:#1e3352;}
+        .alverca-status {color:#aabed9;line-height:1.45;}
+        #estadoMapa:empty, #estadoSincronizacao:empty {display:none;}
+
+        /* Confirmação central, única e focada no utilizador */
+        .confirmation-overlay[hidden] {display:none!important;}
+        .confirmation-open {overflow:hidden;}
+        .confirmation-overlay {
+            position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;
+            padding:20px;background:rgba(2,8,18,.82);backdrop-filter:blur(8px);
+            overflow-y:auto;
+        }
+        .confirmation-dialog {
+            width:min(100%,560px);max-height:calc(100dvh - 40px);overflow-y:auto;position:relative;
+            background:linear-gradient(155deg,#192940,#111e30 70%,#0d192a);
+            border:1px solid rgba(208,221,242,.23);border-radius:22px;
+            box-shadow:0 35px 100px rgba(0,0,0,.65);text-align:left;
+        }
+        .confirm-glow {height:5px;background:linear-gradient(90deg,#bfa46d,#f4dc9a,#bfa46d);}
+        .confirmation-content {padding:31px 34px 34px;}
+        .success-symbol {
+            width:56px;height:56px;border-radius:50%;display:grid;place-items:center;
+            color:#eafff5;background:#145c46;border:1px solid #38a981;font-size:31px;
+            font-weight:700;margin-bottom:20px;box-shadow:0 0 0 7px rgba(33,182,130,.08);
+        }
+        .confirm-eyebrow {margin-bottom:8px;}
+        .confirmation-dialog h2 {font-size:29px;line-height:1.16;letter-spacing:-.7px;margin:0 0 12px;}
+        .confirmation-lead {color:#c5d3e5;font-size:15px;line-height:1.65;margin:0 0 23px;}
+        .confirmation-summary {border:1px solid var(--line);border-radius:13px;background:rgba(3,14,29,.42);padding:8px 17px;}
+        .summary-row {display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid rgba(194,211,238,.12);font-size:14px;}
+        .summary-row span {color:#a9bcd4;flex-shrink:0;}
+        .summary-row strong {text-align:right;font-weight:650;overflow-wrap:anywhere;word-break:break-word;min-width:0;}
+        .summary-seats {padding:11px 0 15px;color:#e0eafe;font-size:13px;line-height:1.65;overflow-wrap:anywhere;border-bottom:1px solid rgba(194,211,238,.12);}
+        .summary-email {border:0;}
+        .summary-email strong {max-width:72%;overflow-wrap:anywhere;}
+        .confirmation-next {display:flex;gap:12px;align-items:flex-start;margin:18px 0 23px;padding:15px;background:#253344;border:1px solid rgba(216,183,117,.26);border-radius:11px;}
+        .mail-icon {display:grid;place-items:center;flex-shrink:0;color:#ead2a0;font-size:20px;}
+        .confirmation-next p {margin:0;font-size:13px;line-height:1.6;color:#d3e0ee;}
+        .confirmation-next strong {color:#fff;}
+        .confirmation-new {display:flex;justify-content:center;align-items:center;gap:15px;width:100%;min-height:51px;border:0;border-radius:11px;background:#d8b775;color:#132035;font:inherit;font-weight:750;font-size:15px;cursor:pointer;transition:background .15s,transform .15s;}
+        .confirmation-new:hover {background:#ecd19b;transform:translateY(-1px);}
+        .confirmation-new:focus-visible {outline:3px solid white;outline-offset:4px;}
+        @media (min-width:769px) and (max-width:1380px) {
+            .main {grid-template-columns:minmax(0,1fr) 400px;gap:16px;}
+            .left {padding:22px 14px;}
+            .alverca-row .seat {width:20px;height:21px;}
+            .alverca-inline-label {width:20px;height:21px;}
+        }
+        @media (max-width:1000px) and (min-width:769px) {
+            .main {grid-template-columns:minmax(0,1fr) 360px;}
+            .form-reserva-grid {grid-template-columns:1fr;}
+            .form-reserva-grid label {grid-column:1/-1;}
+        }
+        @media (max-width:768px) {
+            .site-header {width:100%;min-height:84px;padding:12px 18px;}
+            .site-brand img {width:53px;height:53px;}
+            .site-brand {gap:12px;}
+            .brand-title {font-size:19px;}
+            .brand-eyebrow {font-size:8px;letter-spacing:1.5px;}
+            .header-note {display:none;}
+            .main {display:flex;flex-direction:column;width:100%;gap:0;padding:0 0 24px;}
+            .left {width:100%;padding:16px 7px 18px;border-radius:0;border-left:0;border-right:0;}
+            .map-heading h2 {font-size:19px;}
+            .map-heading p {font-size:12px;}
+            .right {width:100%;padding:18px 15px 26px;gap:13px;}
+            .aside-heading {padding:0 2px;}
+            .aside-heading h3 {font-size:20px;}
+            #painelValidacao {padding:19px 16px;}
+            .form-reserva-grid {grid-template-columns:1fr;}
+            .form-reserva-grid label {grid-column:1/-1;}
+            .confirmation-overlay {padding:14px;}
+            .confirmation-dialog {max-height:calc(100dvh - 28px);border-radius:18px;}
+            .confirmation-content {padding:23px 20px 24px;}
+            .confirmation-dialog h2 {font-size:25px;}
+            .confirmation-lead {font-size:14px;}
+            .summary-row {font-size:13px;}
+        }
+        @media (prefers-reduced-motion:reduce) {
+            *,*::before,*::after {scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;}
+        }
+
 </style>
 </head>
 <body>
+
+<header class="site-header">
+    <div class="site-brand">
+        <img src="LOGO_ACADEMIA_branco.png" alt="Dance4You" width="70" height="70">
+        <div>
+            <span class="brand-eyebrow">ACADEMIA DE DANÇA &amp; EVENTOS</span>
+            <div class="brand-title">Dance4You <span>· Reservas</span></div>
+        </div>
+    </div>
+    <div class="header-note">O teu lugar num momento especial.</div>
+</header>
 
 <div class="main">
 
     <!-- MAPA -->
     <div class="left">
-        <h2 id="tituloSala">Reserva de Lugares — a carregar sala ativa...</h2>
+        <div class="map-heading">
+            <span class="section-eyebrow">PLANTA DO AUDITÓRIO</span>
+            <h2 id="tituloSala">A carregar auditório...</h2>
+            <p>Escolhe os teus lugares diretamente na planta.</p>
+        </div>
         <div id="estadoMapa" class="alverca-status" aria-live="polite"></div>
         <div id="estadoSincronizacao" class="alverca-status" aria-live="polite">A verificar bloqueios de outros visitantes...</div>
         <button id="btnAtualizarDisponibilidade" type="button" class="atualizar-disponibilidade"
@@ -525,10 +710,10 @@
     <!-- PAINEL -->
     <div class="right">
 
-        <div class="logo-wrap">
-            <img src="LOGO_ACADEMIA_branco.png" alt="Logo">
+        <div class="aside-heading">
+            <span class="section-eyebrow">A TUA RESERVA</span>
+            <h3>Escolhe os teus lugares</h3>
         </div>
-
         <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
             <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div> Selecionado</div>
@@ -550,39 +735,21 @@
             <p>Podes consultar a disposição e disponibilidade da sala. A seleção de lugares e a confirmação de reservas serão ativadas quando abrirmos as inscrições.</p>
         </div>
 
-        <section class="info-box" id="painelValidacao" style="border:1px solid #475569; margin-top:16px;" hidden>
-            <h3 style="margin:0 0 9px;font-size:1.1rem">Dados para a reserva</h3>
-            <p style="font-size:.95rem;margin:0 0 12px;color:#cbd5e1">Preenche os teus dados e confirma os lugares selecionados para registar a reserva.</p>
+        <section class="info-box" id="painelValidacao" hidden>
+            <div class="form-heading">
+                <span class="section-eyebrow">ÚLTIMO PASSO</span>
+                <h3>Dados para a reserva</h3>
+                <p>Preenche os dados para receberes a confirmação e as instruções de pagamento por email.</p>
+            </div>
             <div class="form-reserva-grid">
                 <label>Nome do aluno <input id="aluno" type="text" maxlength="200" autocomplete="name" placeholder="Nome do aluno" required></label>
                 <label>Nome do responsável <input id="nome" type="text" maxlength="200" placeholder="Nome do responsável" required></label>
-                <label>Email <input id="email" type="email" maxlength="254" autocomplete="email" placeholder="email@exemplo.pt" required></label>
-                <label>Telefone <input id="telefone" type="tel" maxlength="40" autocomplete="tel" placeholder="Telefone" required></label>
+                <label class="form-wide">Email <input id="email" type="email" maxlength="254" autocomplete="email" placeholder="email@exemplo.pt" required></label>
+                <label class="form-wide">Telefone <input id="telefone" type="tel" maxlength="40" autocomplete="tel" placeholder="Telefone" required></label>
             </div>
             <label class="confirmar-gravacao"><input type="checkbox" id="confirmarTesteReal"> Confirmo que os dados da reserva e os lugares selecionados estão corretos.</label>
             <button type="button" id="btnValidarReserva" class="btn-validar-reserva" onclick="gravarReserva()" disabled>Confirmar reserva</button>
             <div id="resultadoValidacao" role="status" aria-live="polite" class="resultado-validacao"></div>
-        </section>
-
-        <!-- Mantém as instruções do site anterior: não inserir IBAN/MB WAY no frontend. -->
-        <div class="info-box informacao-pagamento" id="informacaoPagamento">
-            <b>Informações sobre a reserva e o pagamento</b>
-            <p>Depois de registar a reserva, receberá um email com os dados da reserva e as instruções de pagamento.</p>
-            <p><strong>A reserva fica confirmada apenas após pagamento.</strong></p>
-        </div>
-
-        <section id="comprovativoReserva" class="comprovativo-reserva" role="status" aria-live="polite" tabindex="-1" hidden>
-            <h3>✅ Reserva registada com sucesso!</h3>
-            <p>Os lugares foram registados. A confirmação definitiva depende do pagamento.</p>
-            <div class="comprovativo-destaque">
-                <div><strong>Referência:</strong> <span id="comprovativoId"></span></div>
-                <div><strong>Auditório:</strong> <span id="comprovativoSala"></span></div>
-                <div><strong>Lugares (<span id="comprovativoQuantidade"></span>):</strong> <span id="comprovativoLugares"></span></div>
-                <div><strong>Email:</strong> <span id="comprovativoEmail"></span></div>
-            </div>
-            <p class="comprovativo-aviso"><strong>Pagamento:</strong> Dentro de alguns minutos deverá receber um email com os dados de pagamento e da reserva. Verifique também a pasta de spam.</p>
-            <p class="comprovativo-meta">O valor total e o número de bilhetes são tratados pelo Power Automate; não são calculados neste formulário.</p>
-            <button type="button" class="nova-reserva" onclick="location.reload()">Fazer outra reserva</button>
         </section>
 
         <button class="planta-link" onclick="togglePlanta()">Ver Planta da Sala</button>
@@ -591,6 +758,30 @@
         </div>
 
     </div>
+</div>
+
+<!-- Confirmação única: aparece apenas após gravação confirmada pela API. -->
+<div id="modalConfirmacao" class="confirmation-overlay" hidden>
+    <section class="confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmacaoTitulo" aria-describedby="confirmacaoDescricao" tabindex="-1">
+        <div class="confirm-glow" aria-hidden="true"></div>
+        <div class="confirmation-content">
+            <div class="success-symbol" aria-hidden="true">✓</div>
+            <div class="confirm-eyebrow">DANCE4YOU · RESERVAS</div>
+            <h2 id="confirmacaoTitulo">Reserva registada!</h2>
+            <p id="confirmacaoDescricao" class="confirmation-lead">Os teus lugares estão reservados. A confirmação definitiva fica sujeita ao pagamento.</p>
+            <div class="confirmation-summary">
+                <div class="summary-row"><span>Auditório</span><strong id="comprovativoSala"></strong></div>
+                <div class="summary-row"><span>Lugares selecionados</span><strong id="comprovativoQuantidade"></strong></div>
+                <div class="summary-seats" id="comprovativoLugares"></div>
+                <div class="summary-row summary-email"><span>Email</span><strong id="comprovativoEmail"></strong></div>
+            </div>
+            <div class="confirmation-next">
+                <span class="mail-icon" aria-hidden="true">✉</span>
+                <p><strong>Verifica o teu email.</strong> Receberás os detalhes da reserva e as instruções de pagamento. Confirma também a pasta de spam.</p>
+            </div>
+            <button id="btnNovaReserva" type="button" class="confirmation-new" onclick="location.reload()">Fazer nova reserva <span aria-hidden="true">→</span></button>
+        </div>
+    </section>
 </div>
 
 <script>
@@ -790,7 +981,8 @@
         if (!el) return;
         const restantes = [...locksAtivos.values()]
             .map(x => Math.max(0, Math.ceil((Date.parse(x.expiresAt) - Date.now()) / 1000)));
-        if (!restantes.length) { el.textContent = "Nenhum bloqueio ativo"; return; }
+        if (!restantes.length) { el.textContent = ""; el.hidden = true; return; }
+        el.hidden = false;
         const seg = Math.min(...restantes);
         el.textContent = `Bloqueios ativos: ${locksAtivos.size} · expiração mais próxima em ${Math.floor(seg / 60)}:${String(seg % 60).padStart(2,"0")}`;
     }
@@ -878,7 +1070,9 @@
             return;
         }
         const externos = [...bloqueadosPorOutros].filter(id => !locksAtivos.has(id)).length;
-        label.textContent = `↻ Atualização automática (4 s) · ${externos} lugar(es) temporariamente bloqueado(s) por outros visitantes`;
+        label.textContent = externos === 0 ? "" :
+            externos === 1 ? "1 lugar temporariamente bloqueado por outro visitante" :
+            `${externos} lugares temporariamente bloqueados por outros visitantes`;
     }
 
     async function atualizarBloqueiosAtivos() {
@@ -941,7 +1135,7 @@
                     });
                     if (devolvido.released !== true) throw new Error("Resposta de libertação inesperada.");
                     removerEstadoLocal(seatId);
-                    mensagemEstado(`Lugar ${seatId} libertado na lista SeatLocks.`);
+                    mensagemEstado(`Lugar ${seatId} libertado.`);
                 } catch (e) {
                     // Um item expirado pode já ter sido apagado pelo timer.
                     if (e.status === 404) {
@@ -956,7 +1150,7 @@
                 if (resposta.sala !== SALA_ATIVA || resposta.seat !== seatId ||
                     !/^[0-9a-f]{32}$/i.test(resposta.lockToken || "") ||
                     !Number.isFinite(Date.parse(resposta.expiresAt)))
-                    throw new Error("A API devolveu um bloqueio inesperado. Confirma SeatLocks.");
+                    throw new Error("Não foi possível confirmar o bloqueio. Tenta novamente.");
                 locksAtivos.set(seatId, {
                     lockToken: resposta.lockToken, expiresAt: resposta.expiresAt
                 });
@@ -1049,7 +1243,7 @@
         if (botaoAtualizar) botaoAtualizar.disabled = true;
         disponibilidadeCarregada = false;
         container.querySelectorAll(".seat").forEach(botao => botao.disabled = true);
-        estado.textContent = "A confirmar disponibilidade no SharePoint...";
+        estado.textContent = "A atualizar a disponibilidade dos lugares...";
         try {
             await carregarLugares();
             await carregarBloqueiosAtivos();
@@ -1175,7 +1369,7 @@
 
     async function iniciarMapa() {
         const estado = document.getElementById("estadoMapa");
-        estado.textContent = "A carregar a planta do SharePoint através da Function...";
+        estado.textContent = "A preparar a planta do auditório...";
         try {
             const url = API_CONFIGURACAO;
             const resposta = await fetch(url, { cache: "no-store" });
@@ -1201,7 +1395,7 @@
                 console.warn("Disponibilidade não confirmada:", erro.message);
             }
             document.body.classList.toggle("sala-alverca", SALA_ATIVA === "Auditorio_Alverca");
-            document.getElementById("tituloSala").textContent = `Reserva de Lugares — ${data.venueName}`;
+            document.getElementById("tituloSala").textContent = data.venueName;
             document.getElementById("imagemPlanta").src =
                 SALA_ATIVA === "Auditorio_Alverca" ? "planta_alverca.png" : "planta.jpg";
             container.innerHTML = "";
@@ -1210,7 +1404,7 @@
             document.getElementById("btnAtualizarDisponibilidade").disabled = false;
             estado.textContent = erroDisponibilidade
                 ? `⚠️ Planta carregada, mas não foi possível confirmar os lugares ocupados: ${erroDisponibilidade.message} Seleção desativada.`
-                : `${data.venueName} · ${totalOcupadosAlverca} lugar(es) reservado(s). Atualização automática de bloqueios ativa.`;
+                : "";
         } catch (erro) {
             configuracaoSala = null;
             container.innerHTML = ""; // Sem fallback para a planta anterior
@@ -1384,30 +1578,19 @@ if(i > 0){
     }
 
     function mostrarConfirmacaoReserva(pedido, idConfirmado, repetido) {
-        const comp = document.getElementById("comprovativoReserva");
-        document.getElementById("comprovativoId").textContent = idConfirmado;
+        // O ReservaId mantém-se apenas na comunicação com o backend, para evitar duplicações.
         document.getElementById("comprovativoSala").textContent = configuracaoSala?.venueName || pedido.sala;
-        document.getElementById("comprovativoQuantidade").textContent = String(pedido.lugares.length);
-        document.getElementById("comprovativoLugares").textContent = pedido.lugares.join(", ");
+        document.getElementById("comprovativoQuantidade").textContent = `${pedido.lugares.length} ${pedido.lugares.length === 1 ? "bilhete" : "bilhetes"}`;
+        document.getElementById("comprovativoLugares").textContent = pedido.lugares.map(id => {
+            if (pedido.sala === "Ateneu_VilaFranca") return `Fila ${id[0]} · Lugar ${id.slice(1)}`;
+            const partes = id.split("-");
+            return `${partes[0] === "plateia" ? "Plateia" : "Balcão"} · Fila ${partes[1]} · Lugar ${partes[2]}`;
+        }).join("  •  ");
         document.getElementById("comprovativoEmail").textContent = pedido.email;
-        comp.hidden = false;
-
-        // Reutiliza o toast verde original, sem guardar dados pessoais no toast.
-        const toast = document.createElement("div");
-        toast.className = "toast-success";
-        toast.setAttribute("role", "status");
-        const heading = document.createElement("b");
-        heading.textContent = "Reserva feita!";
-        const note = document.createElement("p");
-        note.textContent = "Dentro de alguns minutos deverá receber um email com os dados de pagamento e da reserva.";
-        toast.append(heading, note);
-        document.body.appendChild(toast);
-        requestAnimationFrame(() => toast.classList.add("show"));
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 650);
-        }, 6500);
-        comp.scrollIntoView({behavior: "smooth", block: "nearest"});
+        const modal = document.getElementById("modalConfirmacao");
+        modal.hidden = false;
+        document.body.classList.add("confirmation-open");
+        document.getElementById("btnNovaReserva").focus();
     }
 
     async function gravarReserva() {
@@ -1419,7 +1602,7 @@ if(i > 0){
         validacaoEmCurso = true;
         atualizarBotaoValidacao();
         respostaEl.style.color = "#cbd5e1";
-        respostaEl.textContent = "A confirmar a reserva no SharePoint...";
+        respostaEl.textContent = "A confirmar a tua reserva...";
         // Recuperação de falha de comunicação: não muda ID, lugares, dados nem tokens.
         let pedido = pedidoPendente;
         try {
@@ -1458,10 +1641,7 @@ if(i > 0){
             selectedSeats.length = 0;
             locksAtivos.clear();
             bloqueadosPorOutros.clear();
-            respostaEl.style.color = "#86efac";
-            respostaEl.textContent = `✅ Reserva registada! Referência: ${idConfirmado}. ` +
-                `${data.repetido ? "Pedido recuperado sem duplicação. " : ""}` +
-                "Reserva pendente de pagamento.";
+            respostaEl.textContent = "";
             mostrarConfirmacaoReserva(pedido, idConfirmado, data.repetido);
             // Limpar os campos pessoais após a confirmação (o comprovativo mantém os detalhes relevantes).
             for (const campoId of ["aluno", "nome", "email", "telefone"]) {
@@ -1490,8 +1670,7 @@ if(i > 0){
                 try { await atualizarBloqueiosAtivos(); } catch (_) { /* aviso já no painel */ }
             } else {
                 respostaEl.textContent = `⚠️ Não foi possível confirmar o resultado (${e.message}). ` +
-                    `ReservaId: ${pedido?.reservaId || "indisponível"}. Não mudes de lugares nem atualizes a página; ` +
-                    "clica em ‘Verificar / repetir o mesmo pedido’.";
+                    "Não alteres os lugares nem atualizes a página. Clica em ‘Verificar / repetir o mesmo pedido’.";
             }
             respostaEl.style.color = "#fca5a5";
         } finally {
