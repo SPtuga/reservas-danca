@@ -759,9 +759,140 @@
             .terms-body {padding:21px 18px;}
             .terms-heading h2 {font-size:21px;}
         }
+
+    .launch-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: none;
+}
+
+.launch-gate.is-visible {
+  display: block;
+}
+
+.launch-gate__backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(26, 55, 110, 0.35), rgba(3, 10, 25, 0.92)),
+    rgba(2, 8, 20, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.launch-gate__card {
+  position: relative;
+  z-index: 2;
+  width: min(92vw, 620px);
+  margin: 8vh auto 0;
+  background: linear-gradient(180deg, rgba(18, 31, 57, 0.98), rgba(8, 18, 37, 0.98));
+  border: 1px solid rgba(255, 215, 120, 0.28);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+  border-radius: 22px;
+  padding: 34px 30px;
+  text-align: center;
+  color: #f5f7fb;
+}
+
+.launch-gate__eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f0c96a;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.launch-gate__title {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.12;
+  color: #ffffff;
+}
+
+.launch-gate__text {
+  margin: 0 auto 18px;
+  max-width: 520px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #d8e2f5;
+}
+
+.launch-gate__highlight {
+  margin: 0 auto 22px;
+  padding: 18px 16px;
+  max-width: 420px;
+  border-radius: 16px;
+  background: rgba(255, 215, 120, 0.08);
+  border: 1px solid rgba(255, 215, 120, 0.26);
+  color: #fff3cf;
+  font-size: 22px;
+  line-height: 1.5;
+}
+
+.launch-gate__countdown-wrap {
+  margin-top: 10px;
+}
+
+.launch-gate__countdown-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #9fb4d9;
+  margin-bottom: 8px;
+}
+
+.launch-gate__countdown {
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+
+.launch-gate__note {
+  margin: 18px 0 0;
+  color: #b9c8e6;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+body.launch-gate-locked {
+  overflow: hidden;
+}    
 </style>
 </head>
 <body>
+
+    <div id="launchGate" class="launch-gate" aria-hidden="true">
+  <div class="launch-gate__backdrop"></div>
+
+  <div class="launch-gate__card" role="dialog" aria-modal="true" aria-labelledby="launchGateTitle">
+    <div class="launch-gate__eyebrow">Reservas Dance4You</div>
+
+    <h1 id="launchGateTitle" class="launch-gate__title">
+      As reservas ainda não estão disponíveis
+    </h1>
+
+    <p class="launch-gate__text">
+      Para garantir igualdade para todos os alunos e famílias, a abertura das reservas
+      será feita em simultâneo.
+    </p>
+
+    <div class="launch-gate__highlight">
+      <strong>Abertura oficial:</strong><br />
+      15 de novembro às 16h00
+    </div>
+
+    <div class="launch-gate__countdown-wrap">
+      <div class="launch-gate__countdown-label">Tempo restante</div>
+      <div id="launchCountdown" class="launch-gate__countdown">-- : -- : -- : --</div>
+    </div>
+
+    <p class="launch-gate__note">
+      O site ficará automaticamente disponível na hora indicada.
+    </p>
+  </div>
+</div>
 
 <header class="site-header">
     <div class="site-brand">
@@ -846,7 +977,7 @@
             </div>
             <div class="form-reserva-grid">
                 <label>Nome do aluno <input id="aluno" type="text" maxlength="200" autocomplete="name" placeholder="Nome do aluno" required></label>
-                <label>Nome do responsável <input id="nome" type="text" maxlength="200" placeholder="Nome do responsável" required></label>
+                <label>Nome da Reserva <input id="nome" type="text" maxlength="200" placeholder="Nome da reserva" required></label>
                 <label class="form-wide">Email <input id="email" type="email" maxlength="254" autocomplete="email" placeholder="email@exemplo.pt" required></label>
                 <label class="form-wide">Telefone <input id="telefone" type="tel" maxlength="40" autocomplete="tel" placeholder="Telefone" required></label>
             </div>
@@ -1835,6 +1966,8 @@ if(i > 0){
         if (event.target === event.currentTarget) fecharCondicoes();
     });
 
+    
+
     iniciarMapa();
 
     // Apenas para Mobile
@@ -1970,6 +2103,74 @@ if(i > 0){
             lastDistance = null;
         });
     }
+</script>
+<script>
+
+(function () {
+  const gate = document.getElementById("launchGate");
+  const countdown = document.getElementById("launchCountdown");
+
+  if (!gate || !countdown) return;
+
+  // 15 de novembro de 2026, às 16h de Portugal
+  const openingTime = Date.UTC(2026, 10, 15, 16, 0, 0);
+
+  let bypass = sessionStorage.getItem("d4yPreview") === "1";
+  let sequence = "";
+
+  function unlockSite() {
+    gate.classList.remove("is-visible");
+    gate.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("launch-gate-locked");
+  }
+
+  function lockSite() {
+    gate.classList.add("is-visible");
+    gate.setAttribute("aria-hidden", "false");
+    document.body.classList.add("launch-gate-locked");
+  }
+
+  function tick() {
+    if (bypass || Date.now() >= openingTime) {
+      unlockSite();
+      return;
+    }
+
+    lockSite();
+
+    const seconds = Math.max(0,
+      Math.floor((openingTime - Date.now()) / 1000)
+    );
+
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    countdown.textContent = [days, hours, minutes, secs]
+      .map(n => String(n).padStart(2, "0"))
+      .join(" : ");
+  }
+
+  // Atalho secreto: QWER
+  document.addEventListener("keydown", function (event) {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (event.key.length !== 1) return;
+
+    sequence = (sequence + event.key.toUpperCase()).slice(-4);
+
+    if (sequence === "QWER") {
+      bypass = true;
+      sessionStorage.setItem("d4yPreview", "1");
+      unlockSite();
+      sequence = "";
+    }
+  });
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
 </script>
 </body>
 </html>
