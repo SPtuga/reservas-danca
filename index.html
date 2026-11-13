@@ -661,6 +661,104 @@
             *,*::before,*::after {scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;}
         }
 
+
+        /* DANCE4YOU · ajuste visual compacto (sem encolher o conteúdo em mobile) */
+        .ticket-facts {display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;margin-top:9px;color:#cad6e6;font-size:12px;}
+        .ticket-price {color:#f6e1b6;white-space:nowrap;}
+        .ticket-price strong {font-size:15px;color:#fff;letter-spacing:-.2px;}
+        .ticket-child {color:#b9c8dc;}
+        .terms-trigger, .terms-inline {font:inherit;color:#e9ca8f;border:0;background:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;}
+        .terms-trigger {margin-left:auto;font-size:12px;text-decoration:none;border-bottom:1px solid #d8b77580;}
+        .terms-trigger:hover,.terms-inline:hover {color:#fff;}
+        .confirmar-gravacao span {min-width:0;}
+        .seat.pending {opacity:1!important;position:relative;cursor:progress!important;box-shadow:0 0 0 2px rgba(255,255,255,.48);}
+        .seat.pending.selected {background:#2563eb!important;}
+        .seat.pending::after {content:"";position:absolute;right:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:#f6dfac;animation:seat-wait .9s ease-in-out infinite alternate;}
+        @keyframes seat-wait {to {opacity:.35;transform:scale(.7);}}
+        .terms-dialog {border:1px solid rgba(216,183,117,.4);background:#101d30;color:#f8fbff;border-radius:18px;width:min(94vw,535px);max-height:min(88dvh,700px);padding:0;box-shadow:0 35px 90px #0009;}
+        .terms-dialog::backdrop {background:rgba(2,7,16,.84);backdrop-filter:blur(5px);}
+        .terms-body {padding:25px 27px 26px;}
+        .terms-heading {display:flex;align-items:start;justify-content:space-between;gap:15px;}
+        .terms-heading h2 {margin:7px 0 19px;font-size:25px;}
+        .terms-close {border:1px solid #50617a;background:#22324a;color:white;border-radius:8px;font-size:26px;line-height:1;padding:4px 10px;cursor:pointer;}
+        .terms-price {padding:15px;border:1px solid rgba(216,183,117,.32);background:#25354b;border-radius:12px;display:flex;flex-direction:column;gap:5px;}
+        .terms-price strong {color:#ffe2a3;font-size:19px;}
+        .terms-price span,.terms-childnote {font-size:13px;color:#d5e2f1;line-height:1.55;}
+        .terms-childnote {margin:11px 0 0;}
+        .terms-list {margin:18px 0 24px;padding-left:22px;color:#d5e2f1;font-size:14px;line-height:1.55;}
+        .terms-list li {margin-bottom:9px;}
+        .terms-list strong {color:#ffe2a3;}
+        .terms-ack {width:100%;border:0;border-radius:10px;padding:12px 20px;background:#d8b775;color:#132035;font:inherit;font-weight:750;cursor:pointer;}
+        .terms-ack:hover {background:#eed39c;}
+        /* Ateneu: no desktop o wrapper antigo estava em position:absolute e cortava o mapa. */
+        @media (min-width:769px) {
+            body:not(.sala-alverca) #map-wrapper {position:relative;top:auto;left:auto;width:100%;max-width:970px;margin:0 auto;transform:none;}
+            body:not(.sala-alverca) #map-container {height:auto;overflow-x:auto;}
+        }
+        /* Ecrãs de desktop usuais: cabeçalho, planta e formulário à vista sem scroll de página. */
+        @media (min-width:1100px) {
+            .site-header {min-height:74px;height:74px;padding:8px 8px 10px;}
+            .site-brand img {width:53px;height:53px;}
+            .site-brand {gap:12px;}
+            .brand-title {font-size:22px;margin-top:3px;}
+            .main {padding:12px 0 16px;gap:17px;grid-template-columns:minmax(0,1fr) minmax(370px,420px);}
+            .left {padding:13px 15px 15px;}
+            .right {gap:8px;}
+            .aside-heading {padding:0 2px;}
+            .aside-heading h3 {font-size:19px;margin:4px 0 0;}
+            .aside-heading .section-eyebrow {font-size:9px;}
+            .ticket-facts {margin-top:7px;gap:5px 9px;font-size:11px;}
+            .legend {padding:9px 11px;gap:6px 12px;font-size:11px;}
+            .legend-dot {width:11px;height:11px;}
+            .counter {padding:10px 12px;font-size:12px;min-height:0;}
+            .selected-list {font-size:12px;margin-top:4px;line-height:1.42;}
+            .locks-tempo {margin-top:4px;font-size:11px;}
+            .limpar-selecao {margin-top:6px;padding:5px 10px;font-size:11px;}
+            #painelValidacao {padding:13px 14px 14px;}
+            .form-heading h3 {font-size:17px;margin:3px 0;}
+            .form-heading p {font-size:11px;line-height:1.4;margin:0 0 9px;}
+            .form-reserva-grid {gap:8px 10px;margin-bottom:7px;}
+            .form-reserva-grid label {font-size:11px;gap:4px;}
+            .form-reserva-grid input {padding:8px 10px;min-height:37px;font-size:13px;border-radius:8px;}
+            .confirmar-gravacao {font-size:11px;padding:7px 0 9px;gap:8px;}
+            .confirmar-gravacao input {width:16px;height:16px;margin-top:1px;}
+            .btn-validar-reserva {min-height:39px;font-size:13px;}
+            .resultado-validacao {min-height:0;padding-top:3px;font-size:11px;}
+            .map-heading {margin-bottom:4px;}
+            .map-heading h2 {font-size:21px;margin:4px 0 2px;}
+            .map-heading p {font-size:11px;margin:0 0 5px;}
+            .stage {max-width:850px;padding:6px 12px;margin-bottom:6px;}
+            .alverca-section {margin:7px auto 10px;}
+            .alverca-section-title {font-size:13px;margin:7px 0 4px;}
+            .alverca-section + .alverca-section {padding-top:7px;}
+            .alverca-side-labels {font-size:11px;margin:3px 3px 1px;}
+            .alverca-row {margin:1px auto;}
+            .alverca-row .seat,.alverca-inline-label {width:21px;height:21px;font-size:9px;}
+            .alverca-row .alverca-accessible {font-size:12px;}
+            body:not(.sala-alverca) .row {margin:1px 0;}
+            body:not(.sala-alverca) .row .seat {width:21px;height:21px;margin:1px;font-size:9px;}
+            body:not(.sala-alverca) .row .tech {height:21px;}
+            body:not(.sala-alverca) .big-gap {height:12px;}
+        }
+        @media (min-width:1100px) and (min-height:810px) {
+            body {overflow-y:hidden;}
+            .main {height:calc(100dvh - 74px);min-height:0;align-items:start;}
+            .left {max-height:100%;overflow-y:auto;scrollbar-width:thin;}
+            .right {max-height:100%;overflow-y:auto;scrollbar-width:thin;}
+        }
+        /* Ecrãs baixos: respeitar a acessibilidade e permitir scroll, sem cortar formulário. */
+        @media (min-width:1100px) and (max-height:809px) {
+            body {overflow-y:auto;}
+        }
+        @media (max-width:1099px) and (min-width:769px) {
+            .ticket-facts {font-size:11px;}
+        }
+        @media (max-width:768px) {
+            .ticket-facts {margin-top:10px;font-size:12px;}
+            .terms-trigger {font-size:12px;}
+            .terms-body {padding:21px 18px;}
+            .terms-heading h2 {font-size:21px;}
+        }
 </style>
 </head>
 <body>
@@ -713,6 +811,11 @@
         <div class="aside-heading">
             <span class="section-eyebrow">A TUA RESERVA</span>
             <h3>Escolhe os teus lugares</h3>
+            <div class="ticket-facts">
+                <span class="ticket-price">Bilhete único <strong>8 €</strong></span>
+                <span class="ticket-child">Até 3 anos ao colo: gratuito</span>
+                <button class="terms-trigger" type="button" onclick="abrirCondicoes()">Condições <span aria-hidden="true">↗</span></button>
+            </div>
         </div>
         <div class="legend">
             <div class="legend-item"><div class="legend-dot" style="background:#64748b80"></div> Livre</div>
@@ -747,18 +850,37 @@
                 <label class="form-wide">Email <input id="email" type="email" maxlength="254" autocomplete="email" placeholder="email@exemplo.pt" required></label>
                 <label class="form-wide">Telefone <input id="telefone" type="tel" maxlength="40" autocomplete="tel" placeholder="Telefone" required></label>
             </div>
-            <label class="confirmar-gravacao"><input type="checkbox" id="confirmarTesteReal"> Confirmo que os dados da reserva e os lugares selecionados estão corretos.</label>
+            <label class="confirmar-gravacao"><input type="checkbox" id="confirmarTesteReal"> <span>Confirmo os dados e aceito as <button type="button" class="terms-inline" onclick="abrirCondicoes()">condições de reserva</button>.</span></label>
             <button type="button" id="btnValidarReserva" class="btn-validar-reserva" onclick="gravarReserva()" disabled>Confirmar reserva</button>
             <div id="resultadoValidacao" role="status" aria-live="polite" class="resultado-validacao"></div>
         </section>
 
-        <button class="planta-link" onclick="togglePlanta()">Ver Planta da Sala</button>
-        <div id="plantaBox">
-            <img id="imagemPlanta" src="planta.jpg" alt="Planta da sala">
-        </div>
 
     </div>
 </div>
+
+<!-- Condições concisas; abertas a pedido e acessíveis antes da confirmação. -->
+<dialog id="modalCondicoes" class="terms-dialog" aria-labelledby="termsTitle">
+    <div class="terms-body">
+        <div class="terms-heading">
+            <div>
+                <span class="section-eyebrow">INFORMAÇÕES IMPORTANTES</span>
+                <h2 id="termsTitle">Bilhetes e condições</h2>
+            </div>
+            <button class="terms-close" type="button" onclick="fecharCondicoes()" aria-label="Fechar condições">×</button>
+        </div>
+        <div class="terms-price"><strong>8 € por lugar</strong><span>Bilhete único para todos os espectadores com lugar próprio.</span></div>
+        <p class="terms-childnote">Crianças até aos 3 anos que permaneçam ao colo não pagam e não ocupam lugar.</p>
+        <ul class="terms-list">
+            <li>Os lugares são numerados e escolhidos na planta do auditório.</li>
+            <li>A reserva só fica confirmada após pagamento. O prazo de pagamento é de <strong>48 horas</strong>; depois disso, os lugares podem ser disponibilizados novamente.</li>
+            <li>Após o pagamento, os bilhetes não são reembolsáveis, ressalvados os direitos previstos na lei.</li>
+            <li>Recomendamos a chegada antecipada. Depois do início do espetáculo, a entrada poderá ficar condicionada.</li>
+            <li>Em situações imprevistas, a organização poderá ter de ajustar as condições do evento, informando os espectadores.</li>
+        </ul>
+        <button type="button" class="terms-ack" onclick="fecharCondicoes()">Entendi</button>
+    </div>
+</dialog>
 
 <!-- Confirmação única: aparece apenas após gravação confirmada pela API. -->
 <div id="modalConfirmacao" class="confirmation-overlay" hidden>
@@ -880,11 +1002,6 @@
         }
     }
 
-    function togglePlanta() {
-        const el = document.getElementById("plantaBox");
-        el.style.display = el.style.display === "none" ? "block" : "none";
-    }
-
     // Alverca: mesma regra do Ateneu (um lugar livre entre dois ocupados
     // na mesma sequência, apenas até 70% de ocupação total).
     // Cada lado, corredor/rótulo e espaço de mobilidade reduzida separam grupos.
@@ -992,8 +1109,9 @@
     function pintarBotaoLugar(botao) {
         const id = botao.dataset.id;
         const reservado = ocupados.includes(id);
-        const meu = locksAtivos.has(id) && selectedSeats.includes(id);
-        const externo = bloqueadosPorOutros.has(id) && !meu;
+        // O lugar reage imediatamente ao clique. O token só é confirmado quando a API responde.
+        const meu = selectedSeats.includes(id) && (locksAtivos.has(id) || seatsPending.has(id));
+        const externo = bloqueadosPorOutros.has(id) && !locksAtivos.has(id) && !seatsPending.has(id);
         const especial = botao.classList.contains("wheelchair") ||
                          botao.classList.contains("alverca-accessible");
         botao.classList.toggle("selected", meu);
@@ -1009,6 +1127,7 @@
         botao.dataset.titleOriginal = baseTitle;
         botao.title = reservado ? `${baseTitle} — Reservado` :
             externo ? `${baseTitle} — Temporariamente bloqueado por outro visitante` :
+            seatsPending.has(id) ? `${baseTitle} — A confirmar a tua alteração` :
             meu ? `${baseTitle} — Selecionado por ti` : baseTitle;
     }
 
@@ -1117,17 +1236,29 @@
         return conteudo;
     }
 
-    // Operações efetivas no SharePoint: bloqueia um lugar antes de o marcar como selecionado.
+    // Seleção otimista: reação visual imediata, confirmada depois pelo servidor.
+    // A reserva nunca pode ser enviada sem os LockTokens válidos (ver atualizarBotaoValidacao).
     async function alternarLugar(seatId) {
         if (!RESERVAS_ABERTAS || validacaoEmCurso || pedidoPendente || reservaConcluida || seatsPending.has(seatId)) return;
-        if (!locksAtivos.has(seatId) &&
+        const tinhaLock = locksAtivos.has(seatId);
+        if (!tinhaLock &&
             (!disponibilidadeCarregada || !bloqueiosCarregados ||
              ocupados.includes(seatId) || bloqueadosPorOutros.has(seatId))) return;
+
         seatsPending.add(seatId);
+        if (tinhaLock) {
+            // O clique para desselecionar também reage logo; em caso de falha repomos o azul.
+            const pos = selectedSeats.indexOf(seatId);
+            if (pos !== -1) selectedSeats.splice(pos, 1);
+        } else if (!selectedSeats.includes(seatId)) {
+            selectedSeats.push(seatId);
+        }
         pintarEstadoLugar(seatId);
         updateUI();
+        mensagemEstado(tinhaLock ? "A libertar o lugar..." : "A confirmar o lugar selecionado...");
+
         try {
-            if (locksAtivos.has(seatId)) {
+            if (tinhaLock) {
                 const atual = locksAtivos.get(seatId);
                 try {
                     const devolvido = await chamarApiPost(apiLibertar, {
@@ -1137,11 +1268,14 @@
                     removerEstadoLocal(seatId);
                     mensagemEstado(`Lugar ${seatId} libertado.`);
                 } catch (e) {
-                    // Um item expirado pode já ter sido apagado pelo timer.
                     if (e.status === 404) {
                         removerEstadoLocal(seatId);
-                        mensagemEstado(`O bloqueio de ${seatId} já não existia. Atualiza a disponibilidade antes de o voltar a selecionar.`);
-                    } else { throw e; }
+                        mensagemEstado(`O bloqueio de ${seatId} já tinha expirado. Atualiza a disponibilidade se precisares de o selecionar de novo.`);
+                    } else {
+                        // Falha de libertação: o token continua nosso; recuperar a seleção.
+                        if (!selectedSeats.includes(seatId)) selectedSeats.push(seatId);
+                        throw e;
+                    }
                 }
             } else {
                 const resposta = await chamarApiPost(apiBloquear, {
@@ -1154,16 +1288,21 @@
                 locksAtivos.set(seatId, {
                     lockToken: resposta.lockToken, expiresAt: resposta.expiresAt
                 });
-                selectedSeats.push(seatId);
-                mensagemEstado(`Lugar ${seatId} bloqueado até ${new Date(resposta.expiresAt).toLocaleTimeString("pt-PT")}.`);
+                // O lugar já está a azul. Apenas confirmamos o bloqueio.
+                mensagemEstado(`Lugar ${seatId} selecionado.`);
             }
         } catch (e) {
-            mensagemEstado(`⚠️ Não foi possível ${locksAtivos.has(seatId) ? "libertar" : "bloquear"} ${seatId}: ${e.message}`);
+            if (!tinhaLock) {
+                // Falha/409: nunca deixar a falsa seleção no ecrã.
+                const pos = selectedSeats.indexOf(seatId);
+                if (pos !== -1) selectedSeats.splice(pos, 1);
+            }
+            mensagemEstado(`⚠️ Não foi possível ${tinhaLock ? "libertar" : "selecionar"} ${seatId}: ${e.message}`);
         } finally {
             seatsPending.delete(seatId);
             pintarEstadoLugar(seatId);
             updateUI();
-            // Confirma imediatamente a versao no servidor (incluindo HTTP 409).
+            // Confirmar a versão remota (incluindo eventual conflito HTTP 409).
             void atualizarBloqueiosAtivos();
         }
     }
@@ -1396,8 +1535,6 @@
             }
             document.body.classList.toggle("sala-alverca", SALA_ATIVA === "Auditorio_Alverca");
             document.getElementById("tituloSala").textContent = data.venueName;
-            document.getElementById("imagemPlanta").src =
-                SALA_ATIVA === "Auditorio_Alverca" ? "planta_alverca.png" : "planta.jpg";
             container.innerHTML = "";
             render();
             pintarTodosEstados();
@@ -1684,6 +1821,18 @@ if(i > 0){
         if (!locksAtivos.size && !pedidoPendente) return;
         event.preventDefault();
         event.returnValue = "";
+    });
+
+    function abrirCondicoes() {
+        const dialog = document.getElementById("modalCondicoes");
+        if (dialog && !dialog.open) dialog.showModal();
+    }
+    function fecharCondicoes() {
+        const dialog = document.getElementById("modalCondicoes");
+        if (dialog?.open) dialog.close();
+    }
+    document.getElementById("modalCondicoes").addEventListener("click", event => {
+        if (event.target === event.currentTarget) fecharCondicoes();
     });
 
     iniciarMapa();
