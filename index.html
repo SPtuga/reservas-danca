@@ -1039,7 +1039,7 @@ body.launch-gate-locked {
             <button class="terms-close" type="button" onclick="fecharCondicoes()" aria-label="Fechar condições">×</button>
         </div>
         <div class="terms-price"><strong>8 € por lugar</strong><span>Bilhete único para todos os espectadores com lugar próprio.</span></div>
-        <p class="terms-childnote">Crianças até aos 3 anos que permaneçam ao colo não pagam e não ocupam lugar.</p>
+        <p class="terms-childnote">Crianças até aos 3 anos que permaneçam ao colo e não ocupem lugar não pagam.</p>
         <ul class="terms-list">
             <li>Os lugares são numerados e escolhidos na planta do auditório.</li>
             <li>A reserva só fica confirmada após pagamento. O prazo de pagamento é de <strong>48 horas</strong>; depois disso, os lugares podem ser disponibilizados novamente.</li>
@@ -1059,7 +1059,7 @@ body.launch-gate-locked {
             <div class="success-symbol" aria-hidden="true">✓</div>
             <div class="confirm-eyebrow">DANCE4YOU · RESERVAS</div>
             <h2 id="confirmacaoTitulo">Reserva registada!</h2>
-            <p id="confirmacaoDescricao" class="confirmation-lead">Os teus lugares estão reservados. A confirmação definitiva fica sujeita ao pagamento.</p>
+            <p id="confirmacaoDescricao" class="confirmation-lead">Os teus lugares estão reservados por 48 horas. A confirmação definitiva fica sujeita ao pagamento.</p>
             <div class="confirmation-summary">
                 <div class="summary-row"><span>Auditório</span><strong id="comprovativoSala"></strong></div>
                 <div class="summary-row"><span>Lugares selecionados</span><strong id="comprovativoQuantidade"></strong></div>
@@ -1070,7 +1070,7 @@ body.launch-gate-locked {
                 <span class="mail-icon" aria-hidden="true">✉</span>
                 <p><strong>Verifica o teu email.</strong> Receberás os detalhes da reserva e as instruções de pagamento. Confirma também a pasta de spam.</p>
             </div>
-            <button id="btnNovaReserva" type="button" class="confirmation-new" onclick="location.reload()">Fazer nova reserva <span aria-hidden="true">→</span></button>
+            <button id="btnNovaReserva" type="button" class="confirmation-new" onclick="location.reload()">Fazer nova reserva ou Sair <span aria-hidden="true">→</span></button>
         </div>
     </section>
 </div>
@@ -1855,7 +1855,7 @@ if(i > 0){
         if (reservaConcluida) { botao.disabled = true; botao.textContent = "Reserva registada"; return; }
         // Em falha de rede, volta a enviar exatamente o mesmo pedido para recuperar o resultado.
         if (pedidoPendente) {
-            botao.textContent = "Verificar / repetir o mesmo pedido";
+            botao.textContent = "Em progresso...";
             botao.disabled = validacaoEmCurso;
             return;
         }
