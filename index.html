@@ -805,6 +805,10 @@
 }
 
 .launch-gate__title {
+  /* Permite os 5 toques seguidos no Pixel sem ativar o zoom por duplo toque. */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
   margin: 0 0 14px;
   font-size: clamp(28px, 3vw, 42px);
   line-height: 1.12;
@@ -2269,6 +2273,31 @@ if(i > 0){
       sessionStorage.setItem("d4yPreview", "1");
       unlockSite();
       sequence = "";
+    }
+  });
+
+  // Acesso de teste em telemóvel: 5 toques rápidos no título do modal.
+  // Não abre nenhuma caixa de texto nem mostra um botão aos visitantes.
+  const tituloGate = document.getElementById("launchGateTitle");
+  let numeroToques = 0;
+  let primeiroToque = 0;
+
+  tituloGate?.addEventListener("click", () => {
+    if (!gate.classList.contains("is-visible")) return;
+
+    const agora = Date.now();
+    if (agora - primeiroToque > 10000) {
+      numeroToques = 0;
+      primeiroToque = agora;
+    }
+    numeroToques++;
+
+    if (numeroToques >= 12) {
+      bypass = true;
+      sessionStorage.setItem("d4yPreview", "1");
+      unlockSite();
+      numeroToques = 0;
+      primeiroToque = 0;
     }
   });
 
