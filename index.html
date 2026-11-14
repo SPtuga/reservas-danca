@@ -1128,7 +1128,10 @@ body.launch-gate-locked {
 
     function validarLugaresOrfaosAteneu() {
         let total = 0, preenchidos = 0;
-        const marcados = new Set([...ocupados, ...bloqueadosPorOutros, ...selectedSeats]);
+        // Apenas lugares efetivamente reservados e os escolhidos nesta sessão contam.
+        // SeatLocks de outros visitantes são temporários e não podem criar erros para terceiros.
+        const marcados = new Set([...ocupados, ...selectedSeats]);
+        const selecionadosNestaSessao = new Set(selectedSeats);
         const blocos = [];
         for (const [fila, secoes] of Object.entries(layout)) {
             if (fila === "BREAK") continue;
@@ -1155,10 +1158,12 @@ body.launch-gate-locked {
             }
         }
         temErroOrfaos = false;
-        if (total && preenchidos / total < .7) {
+        if (selectedSeats.length && total && preenchidos / total < .7) {
             for (const grupo of blocos) {
                 for (let i=1; i<grupo.length-1; i++) {
-                    if (!marcados.has(grupo[i]) && marcados.has(grupo[i-1]) && marcados.has(grupo[i+1])) {
+                    if (!marcados.has(grupo[i]) && marcados.has(grupo[i-1]) && marcados.has(grupo[i+1]) &&
+                        (selecionadosNestaSessao.has(grupo[i-1]) || selecionadosNestaSessao.has(grupo[i+1]))) {
+                        // Só assinalar órfãos criados pela seleção deste visitante.
                         temErroOrfaos = true;
                     }
                 }
@@ -1171,14 +1176,16 @@ body.launch-gate-locked {
         }
     }
 
-    // Alverca: mesma regra do Ateneu (um lugar livre entre dois ocupados
-    // na mesma sequência, apenas até 70% de ocupação total).
-    // Cada lado, corredor/rótulo e espaço de mobilidade reduzida separam grupos.
-    // A validação assinala lugares isolados durante a seleção.
+    // Alverca: assinala apenas órfãos que a seleção atual cria,
+    // sem contar bloqueios temporários de outros visitantes.
+    // A regra aplica-se até 70% de ocupação e respeita separadores da planta.
     function validarLugaresOrfaosAlverca() {
         if (configuracaoSala?.venueId !== "Auditorio_Alverca") return;
         const aviso = document.getElementById("avisoOrfaos");
-        const marcados = new Set([...ocupados, ...bloqueadosPorOutros, ...selectedSeats]);
+        // Apenas lugares efetivamente reservados e os escolhidos nesta sessão contam.
+        // SeatLocks de outros visitantes são temporários e não podem criar erros para terceiros.
+        const marcados = new Set([...ocupados, ...selectedSeats]);
+        const selecionadosNestaSessao = new Set(selectedSeats);
         const grupos = [];
         let total = 0;
         let preenchidos = 0;
@@ -1209,11 +1216,13 @@ body.launch-gate-locked {
         }
 
         const isolados = [];
-        if (total && preenchidos / total < 0.70) {
+        if (selectedSeats.length && total && preenchidos / total < 0.70) {
             for (const grupo of grupos) {
                 for (let i = 1; i < grupo.length - 1; i++) {
                     if (!marcados.has(grupo[i]) &&
-                        marcados.has(grupo[i - 1]) && marcados.has(grupo[i + 1])) {
+                        marcados.has(grupo[i - 1]) && marcados.has(grupo[i + 1]) &&
+                        (selecionadosNestaSessao.has(grupo[i - 1]) || selecionadosNestaSessao.has(grupo[i + 1]))) {
+                        // Ignorar lugares que já estavam isolados antes desta seleção.
                         isolados.push(grupo[i]);
                     }
                 }
