@@ -1388,10 +1388,101 @@ body.launch-gate-locked {
         }
     }
 
-    // Sincronização por consulta a cada 4 segundos; SignalR não está integrado nesta versão.
+    // Sincronização completa: os SeatLocks deixam de existir após a reserva,
+    // mas o lugar tem de passar a vermelho (ocupado), não a livre.
+    let sincronizacaoCompletaEmCurso = false;
+    const bloqueiosEmTransicao = new Map(); // seatId -> fim da margem de segurança
+
+    async function sincronizarDisponibilidadeAutomatica() {
+        // Evitar alterar estados durante a gravação ou outra atualização.
+        if (!configuracaoSala || sincronizacaoCompletaEmCurso || atualizacaoEmCurso ||
+            atualizacaoBloqueiosEmCurso || validacaoEmCurso || pedidoPendente ||
+            reservaConcluida) return;
+
+        sincronizacaoCompletaEmCurso = true;
+        const sala = SALA_ATIVA;
+        try {
+            const sufixo = `sala=${encodeURIComponent(sala)}&_=${Date.now()}`;
+            // Receber ambos os resultados ANTES de aplicar estados ao mapa.
+            const [respBloqueios, respLugares] = await Promise.all([
+                fetch(`${apiBloqueios}?${sufixo}`, { method: "GET", cache: "no-store" }),
+                fetch(`${apiLugares}?${sufixo}`, { method: "GET", cache: "no-store" })
+            ]);
+            if (!respBloqueios.ok || !respLugares.ok)
+                throw new Error(`HTTP bloqueios=${respBloqueios.status}, lugares=${respLugares.status}`);
+
+            const [dadosBloqueios, dadosLugares] = await Promise.all([
+                respBloqueios.json(), respLugares.json()
+            ]);
+            if (dadosBloqueios?.sala !== sala || !Array.isArray(dadosBloqueios.bloqueados) ||
+                dadosLugares?.sala !== sala || !Array.isArray(dadosLugares.ocupados))
+                throw new Error("Resposta de disponibilidade inválida.");
+
+            // Ignorar respostas de uma sala que entretanto tenha sido substituída.
+            if (SALA_ATIVA !== sala || !configuracaoSala || atualizacaoEmCurso ||
+                validacaoEmCurso || pedidoPendente || reservaConcluida) return;
+
+            const idsValidos = identificadoresValidos();
+            function normalizarIds(valores) {
+                const resultado = new Set();
+                for (const valor of valores) {
+                    if (typeof valor !== "string") throw new Error("ID de lugar inválido.");
+                    const id = idsValidos.get(valor.trim().toLowerCase());
+                    if (id) resultado.add(id);
+                }
+                return resultado;
+            }
+            const novosOcupados = normalizarIds(dadosLugares.ocupados);
+            const novosBloqueados = normalizarIds(dadosBloqueios.bloqueados);
+
+            // Janela curta para a transição LOCK -> RESERVADO.
+            // Se o lock desaparece antes de a API listar a reserva, não pintar de livre.
+            const agora = Date.now();
+            for (const id of bloqueadosPorOutros) {
+                if (!novosBloqueados.has(id) && !novosOcupados.has(id) &&
+                    !locksAtivos.has(id) && !seatsPending.has(id) &&
+                    !bloqueiosEmTransicao.has(id))
+                    bloqueiosEmTransicao.set(id, agora + 12000);
+            }
+            for (const [id, ate] of bloqueiosEmTransicao) {
+                if (novosOcupados.has(id) ||
+                    novosBloqueados.has(id) ||
+                    ate <= agora) {
+                    bloqueiosEmTransicao.delete(id);
+                } else {
+                    novosBloqueados.add(id);
+                }
+            }
+
+            // Aplicar snapshot conjunto; a cor vermelha tem prioridade sobre amarelo.
+            ocupados = [...novosOcupados];
+            totalOcupadosAlverca = ocupados.length;
+            bloqueadosPorOutros.clear();
+            for (const id of novosBloqueados) bloqueadosPorOutros.add(id);
+            disponibilidadeCarregada = true;
+            bloqueiosCarregados = true;
+            atualizarEstadoSincronizacao();
+            pintarTodosEstados();
+        } catch (erro) {
+            // Segurança: em falha, não permitir novas seleções com dados desatualizados.
+            disponibilidadeCarregada = false;
+            bloqueiosCarregados = false;
+            atualizarEstadoSincronizacao(erro.message);
+            pintarTodosEstados();
+            console.warn("Falha na sincronização automática:", erro);
+        } finally {
+            sincronizacaoCompletaEmCurso = false;
+        }
+    }
+
     setInterval(() => {
-        if (!document.hidden && configuracaoSala) void atualizarBloqueiosAtivos();
+        if (!document.hidden && configuracaoSala) void sincronizarDisponibilidadeAutomatica();
     }, 4000);
+
+    // Quando se regressa ao separador, sincronizar sem esperar pelo próximo ciclo.
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && configuracaoSala) void sincronizarDisponibilidadeAutomatica();
+    });
 
     function removerEstadoLocal(seatId) {
         locksAtivos.delete(seatId);
